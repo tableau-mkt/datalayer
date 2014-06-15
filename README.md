@@ -35,7 +35,6 @@ You can configure what gets pushed out via the admin page. This includes global 
 ## Suggest output properties
 You can easily suggest additional entity properties to the Data Layer module by using the `hook_datalayer_output_meta()` function. Example:
 ```php
-<?php
 function my_module_datalayer_meta() {  
   return array(
     'my_special_entity_property',
@@ -46,7 +45,6 @@ function my_module_datalayer_meta() {
 ## Deeper output control
 You can also alter what's available in more granular ways via the `hook_datalayer_meta_alter()` function. _You may want to take advantage of the entity agnostic menu object loader within the module._ For example you might want to hide author information in some special cases...
 ```php
-<?php
 function my_module_datalayer_meta_alter(&$properties) {
   $type = false;
   if ($obj = _datalayer_menu_get_any_object($type)) {
