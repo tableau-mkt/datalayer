@@ -1,0 +1,218 @@
+<?php
+/**
+ * @file
+ * Client-side data space.
+ */
+
+
+/**
+ * Implements hook_menu().
+ */
+function datalayer_menu() {
+  $items['admin/config/search/datalayer'] = array(
+    'title' => 'Data Layer',
+    'description' => 'Output page meta data for client-side use.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('datalayer_settings_form'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'datalayer.admin.inc',
+  );
+
+  return $items;
+}
+
+
+/**
+ * Implements hook_preprocess_HOOK().
+ * Outputs meta data details of the page.
+ */
+function datalayer_preprocess_html(&$variables) {
+  $ouput_data = array();
+
+  // Add details about the page.
+  if (variable_get($m . 'datalayer_add_page_meta', FALSE)) {
+    $type = false;
+    if ($obj = _datalayer_menu_get_any_object($type) && $type) {
+
+      // Explicit additions.
+      $ouput_data['entityType'] = $type;
+      $ouput_data['bundle'] = (isset($obj->type)) ? $obj->type : false;
+
+      // Output various entity properties. Allow additions/alterations.
+      // NOTE: Properties mean different things on different entity types.
+      $properties = _datalayer_collect_meta();
+      $selected_properties = variable_get($m . 'entity_meta');
+
+      // Build meta output.
+      // Honor selective output configuration.
+      if (count($selected_properties) > 0) {
+        // Include only entity valid and config selected.
+        foreach ($properties as $p) {
+          if (isset($obj->$p) && $selected_properties[$p]) {
+            $ouput_data[$p] = $obj->$p;
+          }
+        }
+      }
+      else {
+        // Include all in output, only entity valid.
+        foreach ($properties as $p) {
+          if (isset($obj->$p)) {
+            $ouput_data[$p] = $obj->$p;
+          }
+        }
+      }
+
+      // Output term data.
+      if (variable_get('datalayer_output_terms', TRUE)) {
+        if ($type == 'taxonomy_term') {
+          $ouput_data['taxonomy'] = array($obj->vocabulary_machine_name => $obj->tid);
+        }
+        else {
+          // Meta data on content.
+          if ($terms = _datalayer_get_entity_terms($type, $obj->type, $obj)) {
+            $ouput_data['taxonomy'] = $terms;
+          }
+        }
+      }
+
+      // Pass along info to Google.
+      if (variable_get('datalayer_services_google', TRUE)) {
+        drupal_add_js(drupal_get_path('module', 'datalayer') . 'datalayer.google.js');
+      }
+    }
+
+    // Output page meta data.
+    if (!empty($ouput_data)) {
+      drupal_add_js(array('dataLayer' => $ouput_data), 'setting');
+    }
+  }
+}
+
+
+/**
+ * Collects up meta data for output.
+ */
+function _datalayer_collect_meta() {
+  // Avoid duplicate builds.
+  $properties = &drupal_static(__FUNCTION__);
+  if (!isset($properties)) {
+    $properties = array('entityType', 'bundle');
+    foreach (module_implements('datalayer_meta') as $module) {
+      // Call modules implementing datalayer_meta() and combine results.
+      $properties = array_merge($properties,
+        module_invoke($module, 'datalayer_meta')
+      );
+    }
+    drupal_alter('datalayer_meta', $properties);
+  }
+
+  return $properties;
+}
+
+
+/**
+ * Implements hook_datalayer_meta().
+ * Defines default meta data.
+ */
+function datalayer_datalayer_meta() {
+  return array(
+    'title',
+    'language',
+    'nid',
+    'tnid',
+    'tid',
+    'vid',
+    'name',
+    'uid',
+    'created',
+    'status',
+  );
+}
+
+
+/**
+ * Utility function to agnosticly get the current menu object.
+ * Structured like menu_get_object(), but the passed type will be set for you.
+ *
+ * @param string (reference) $return_type
+ *
+ * return object
+ *   Entity object of current menu callback page.
+ */
+function _datalayer_menu_get_any_object(&$return_type) {
+  // Figure out how this entity is loaded.
+  $type = FALSE;
+  $item = menu_get_item();
+  $vals = array_values($item['load_functions']);
+  $load_function = $vals[0];
+  $arg_position = array_search($load_function, $item['load_functions']);
+
+  // Compare to entity types.
+  $entity_info = entity_get_info();
+  foreach($entity_info as $i => $e) {
+    if ($e['load hook'] == $load_function) {
+      $type = $i;
+    }
+  }
+
+  // Many happy returns.
+  if ($type && $obj = menu_get_object($type, $arg_position)) {
+    if(is_object($obj)) {
+      $return_type = $type;
+      return $obj;
+    }
+    else {
+      return FALSE;
+    }
+  }
+  else {
+    return FALSE;
+  }
+}
+
+
+/**
+ * Fetch all taxonomy terms from an entity.
+ * All fields of field type "taxonomy_term_reference" will be included.
+ *
+ * Idea found at https://api.drupal.org/comment/50393#comment-50393
+ * Thanks to HydroZ.
+ *
+ * @param String $entity_type
+ * @param $string $bundle
+ * @param Object $entity
+ *
+ * @return array
+ *   Array with tids of entity.
+ */
+function _datalayer_get_entity_terms($entity_type, $bundle, $entity) {
+  $terms = array();
+  $vocabs = variable_get('datalayer_vocabs', array());
+
+  // Use very lightweight field info list to find relevant fields.
+  foreach (field_info_field_map() as $field_name => $field_info) {
+    if ($field_info['type'] <> "taxonomy_term_reference") {
+      continue;
+    }
+    if (array_key_exists($entity_type, $field_info['bundles'])) {
+      if (in_array($bundle, $field_info['bundles'][$entity_type])) {
+        if (isset($entity->{$field_name})) {
+          // Collect terms from fields for return.
+          $values = field_get_items($entity_type, $entity, $field_name);
+          foreach ((array)$values as $termArray) {
+            // Limit to existant tids.
+            if (isset($termArray['tid']) && $term = taxonomy_term_load($termArray['tid'])) {
+              // Limit configured vocabs.
+              if ($vocabs[$term->vocabulary_machine_name]) {
+                $terms[$term->vocabulary_machine_name][$term->tid] = $term->name;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return $terms;
+}

@@ -1,0 +1,22 @@
+<?php
+/**
+ * @file
+ * Install, update, and uninstall hooks for the Data Layer module.
+ */
+
+
+/**
+ * Implements hook_uninstall().
+ */
+function datalayer_page_uninstall() {
+  $variables = array(
+    'datalayer_add_page_meta',
+    'datalayer_output_terms',
+    'datalayer_entity_meta',
+    'datalayer_vocabs',
+  );
+
+  foreach ($variables as $variable) {
+    variable_del($variable);
+  }
+}
