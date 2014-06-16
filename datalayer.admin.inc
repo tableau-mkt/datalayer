@@ -13,7 +13,7 @@ function datalayer_settings_form($form_state) {
     $v_options[$v->machine_name] = $v->name;
   }
   // Get available meta data.
-  $meta_data = _datalayer_collect_meta();
+  $meta_data = _datalayer_collect_meta_properties();
 
   $form['global'] = array(
     '#type' => 'fieldset',

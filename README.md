@@ -32,30 +32,53 @@ You can configure what gets pushed out via the admin page. This includes global 
 }
 ```
 
-## Suggest output properties
+## Adding to the data layer
+
+### Suggest entity properties
 You can easily suggest additional entity properties to the Data Layer module by using the `hook_datalayer_output_meta()` function. Example:
 ```php
 function my_module_datalayer_meta() {  
   return array(
-    'my_special_entity_property',
+    'my_entity_property',
   );
 }
 ```
 
-## Deeper output control
-You can also alter what's available in more granular ways via the `hook_datalayer_meta_alter()` function. _You may want to take advantage of the entity agnostic menu object loader within the module._ For example you might want to hide author information in some special cases...
+### Add data layer values
+In order to easily add data layer properties and values on the fly within your code, use the `datalayer_add_dl()` function much like you would `drupal_add_js` or `drupal_add_css`.
+NOTE: In that case of matching keys, any added property/value pairs can overwrite those already available via normal entity output. You _should_ be using the `datalayer_dl_alter()` function if that's the intent, as added properties are available there.
+Example:
+```php
+function _my_module_myevent_func($argument = FALSE) {
+  if ($argument) {
+    datalayer_add_dl(array(
+      'my_property' => $argument(),
+      'my_other_property' => _my_module_other_funct($argument),
+    ));
+  }
+}
+```
+
+## Alter output
+
+### Alter available properties
+You can also alter what entity properties are available within the admin UI, and as candidates via the `hook_datalayer_meta_alter()` function. _You may want to take advantage of the entity agnostic menu object loader function found within the module._ For example you might want to hide author information in some special cases...
 ```php
 function my_module_datalayer_meta_alter(&$properties) {
+  // Override module norm in all cases.
+  unset($properties['uid']);
+
+  // Specific situation alteration...
   $type = false;
   if ($obj = _datalayer_menu_get_any_object($type)) {
-    if ($type === 'node' && $obj->type === 'my_bundle') {
+    if ($type === 'node' && in_array(array('my_bundle', 'my_nodetype'), $obj->type)) {
       // Remove author names on some content type.
       if ($key = array_search('name', $properties)) {
         unset($properties[$key]);
       }
     }
     elseif ($type === 'my_entity_type') {
-      // Remove some property on some entity.
+      // Remove some property on some entity type.
       if ($key = array_search('my_property', $properties)) {
         unset($properties[$key]);
       }
@@ -64,7 +87,16 @@ function my_module_datalayer_meta_alter(&$properties) {
 }
 ```
 
-## Use this data yourself
+### Alter output values
+You can also directly alter output bound data with the `hook_datalayer_dl_alter()` function. Use this to alter values found in normal entity output or added by `datalayer_add_dl()` within the same or other modules, to support good architecture.
+```php
+function my_module_datalayer_dl_alter(&$data_layer) {
+  // Set the "site" variable to return in lowercase.
+  $data_layer['site'] = strtolower($data_layer['site']);
+}
+```
+
+## Use the data layer client-side
 There are lots of great client-side uses for your pages' data. You might act on this info like this...
 ```javascript
 (function ($) {

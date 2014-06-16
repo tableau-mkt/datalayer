@@ -28,63 +28,32 @@ function datalayer_menu() {
  * Outputs meta data details of the page.
  */
 function datalayer_preprocess_html(&$variables) {
-  $ouput_data = array();
+  $ouput_data = _datalayer_dl_defaults();
 
   // Add details about the page.
   if (variable_get($m . 'datalayer_add_page_meta', FALSE)) {
+
     $type = false;
     if ($obj = _datalayer_menu_get_any_object($type) && $type) {
 
-      // Explicit additions.
-      $ouput_data['entityType'] = $type;
-      $ouput_data['bundle'] = (isset($obj->type)) ? $obj->type : false;
-
-      // Output various entity properties. Allow additions/alterations.
-      // NOTE: Properties mean different things on different entity types.
-      $properties = _datalayer_collect_meta();
-      $selected_properties = variable_get($m . 'entity_meta');
-
-      // Build meta output.
-      // Honor selective output configuration.
-      if (count($selected_properties) > 0) {
-        // Include only entity valid and config selected.
-        foreach ($properties as $p) {
-          if (isset($obj->$p) && $selected_properties[$p]) {
-            $ouput_data[$p] = $obj->$p;
-          }
-        }
-      }
-      else {
-        // Include all in output, only entity valid.
-        foreach ($properties as $p) {
-          if (isset($obj->$p)) {
-            $ouput_data[$p] = $obj->$p;
-          }
-        }
-      }
-
-      // Output term data.
-      if (variable_get('datalayer_output_terms', TRUE)) {
-        if ($type == 'taxonomy_term') {
-          $ouput_data['taxonomy'] = array($obj->vocabulary_machine_name => $obj->tid);
-        }
-        else {
-          // Meta data on content.
-          if ($terms = _datalayer_get_entity_terms($type, $obj->type, $obj)) {
-            $ouput_data['taxonomy'] = $terms;
-          }
-        }
-      }
-
-      // Pass along info to Google.
-      if (variable_get('datalayer_services_google', TRUE)) {
-        drupal_add_js(drupal_get_path('module', 'datalayer') . 'datalayer.google.js');
-      }
+      // Populate entity properties and values.
+      $output_data = _datalayer_get_entity_data($obj, $type);
     }
+
+    // Merge data from datalayer_add_dl(), which include defaults, with entity values.
+    $ouput_data = array_merge($ouput_data, datalayer_get_dl());
+
+    // Allow modules to alter data with hook_datalayer_dl_alter().
+    drupal_alter('datalayer_dl', $ouput_data);
 
     // Output page meta data.
     if (!empty($ouput_data)) {
       drupal_add_js(array('dataLayer' => $ouput_data), 'setting');
+    }
+
+    // Setup passing data along to Google.
+    if (variable_get('datalayer_services_google', TRUE)) {
+      drupal_add_js(drupal_get_path('module', 'datalayer') . 'datalayer.google.js');
     }
   }
 }
@@ -92,11 +61,15 @@ function datalayer_preprocess_html(&$variables) {
 
 /**
  * Collects up meta data for output.
+ * 
+ * @return
+ *   Array of all candidate entity properties.
  */
-function _datalayer_collect_meta() {
+function _datalayer_collect_meta_properties() {
   // Avoid duplicate builds.
   $properties = &drupal_static(__FUNCTION__);
   if (!isset($properties)) {
+
     $properties = array('entityType', 'bundle');
     foreach (module_implements('datalayer_meta') as $module) {
       // Call modules implementing datalayer_meta() and combine results.
@@ -127,6 +100,111 @@ function datalayer_datalayer_meta() {
     'uid',
     'created',
     'status',
+  );
+}
+
+
+/**
+ * Collect entity data for output and altering.
+ * 
+ * @param $obj
+ *   Entity object of the page menu callback.
+ * @param $type
+ *   String representing entitie's type.
+ *
+ * @return
+ *   Array of all properties and values for output of page entity. 
+ */
+function _datalayer_get_entity_data($obj, $type) {
+  $ouput_data = &drupal_static(__FUNCTION__);
+  if (!isset($ouput_data)) {
+
+    // Explicit additions.
+    $ouput_data['entityType'] = $type;
+    $ouput_data['bundle'] = (isset($obj->type)) ? $obj->type : false;
+
+    // Output various entity properties. Allow additions/alterations.
+    // NOTE: Properties mean different things on different entity types.
+    $properties = _datalayer_collect_meta_properties();
+    $selected_properties = variable_get($m . 'entity_meta');
+
+    // Build meta output.
+    // Honor selective output configuration.
+    if (count($selected_properties) > 0) {
+      // Include only entity valid and config selected.
+      foreach ($properties as $p) {
+        if (isset($obj->$p) && $selected_properties[$p]) {
+          $ouput_data[$p] = $obj->$p;
+        }
+      }
+    }
+    else {
+      // Include all in output, only entity valid.
+      foreach ($properties as $p) {
+        if (isset($obj->$p)) {
+          $ouput_data[$p] = $obj->$p;
+        }
+      }
+    }
+
+    // Output term data.
+    if (variable_get('datalayer_output_terms', TRUE)) {
+      if ($type == 'taxonomy_term') {
+        $ouput_data['taxonomy'] = array($obj->vocabulary_machine_name => $obj->tid);
+      }
+      else {
+        // Meta data on content.
+        if ($terms = _datalayer_get_entity_terms($type, $obj->type, $obj)) {
+          $ouput_data['taxonomy'] = $terms;
+        }
+      }
+    }
+  }
+
+  return $output_data;
+}
+
+
+/**
+ * Allow adding to the data layer output easy on the fly.
+ * Think of this as a drupal_add_js().
+ *
+ * @param $data
+ *   An array of dataLayer data keyed by variable name.
+ *
+ * @param $overwrite
+ *   TRUE if data provided should overwrite existing dataLayer variables of the
+ *   same name. Defaults to FALSE.
+ *
+ * @return
+ *   All data layer data added thus far.
+ */
+function datalayer_add_dl($data = array(), $overwrite = FALSE) {
+  $output_data = &drupal_static(__FUNCTION__);
+
+  // If we've been given data, add it to the output.
+  if (!empty($data)) {
+    if ($overwrite) {
+      $output_data = array_merge($output_data, $data);
+    }
+    else {
+      $output_data += $data;
+    }
+  }
+
+  return $output_data;
+}
+
+
+/**
+ * Defines Drupal-wide data layer defaults.
+ */
+function _datalayer_dl_defaults() {
+  global $language, $user;
+
+  return array(
+    'language' => $language->language,
+    'drupal.userStatus' => $user->uid > 0 ? 'authenticated' : 'anonymous',
   );
 }
 
@@ -173,7 +251,7 @@ function _datalayer_menu_get_any_object(&$return_type) {
 
 
 /**
- * Fetch all taxonomy terms from an entity.
+ * Utility function to fetch all taxonomy terms from an entity.
  * All fields of field type "taxonomy_term_reference" will be included.
  *
  * Idea found at https://api.drupal.org/comment/50393#comment-50393
