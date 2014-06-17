@@ -47,14 +47,31 @@ function datalayer_preprocess_html(&$variables) {
     drupal_alter('datalayer_dl', $ouput_data);
 
     // Output page meta data.
-    if (!empty($ouput_data)) {
-      drupal_add_js(array('dataLayer' => $ouput_data), 'setting');
+    $output = !empty($ouput_data) ? drupal_json_encode($ouput_data) : '';
+    $render = array(
+      '#type' => 'html_tag',
+      '#tag' => 'script',
+      '#value' => 'dataLayer = [' . $output . '];',
+      '#attributes' => array(
+        'type' => 'text/javascript',
+      ),
+    );
+    drupal_add_html_head($render, 'datalayer_meta');
+
+    // Include data-layer-helper library.
+    if (variable_get('datalayer_lib_helper', TRUE)) {
+      if (function_exists('libraries_load') && libraries_load('data-layer-helper')) {
+        // You have Libraries 2.0 and some other module registered this.
+        // The test above will cause the load.
+      }
+      else {
+        $path = libraries_get_path('data-layer-helper');
+        if (!empty($path) && file_exists($path . '/data-layer-helper.js')) {
+          drupal_add_js($path . '/data-layer-helper.js');
+        }
+      }
     }
 
-    // Setup passing data along to Google.
-    if (variable_get('datalayer_services_google', TRUE)) {
-      drupal_add_js(drupal_get_path('module', 'datalayer') . 'datalayer.google.js');
-    }
   }
 }
 

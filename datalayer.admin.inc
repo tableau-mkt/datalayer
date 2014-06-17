@@ -36,15 +36,15 @@ function datalayer_settings_form($form_state) {
     '#title' => t('Include taxonomy terms'),
     '#default_value' => variable_get('datalayer_output_terms', TRUE),
   );
-  $form['global']['datalayer_services_google'] = array(
+  $form['global']['datalayer_lib_helper'] = array(
     '#type' => 'checkbox',
     '#states' => array(
       'enabled' => array(
         ':input[name="datalayer_add_page_meta"]' => array('checked' => TRUE),
       ),
     ),
-    '#title' => t('Push data to the Google data layer.'),
-    '#default_value' => variable_get('datalayer_services_google', FALSE),
+    '#title' => t('Include data-layer-helper library'),
+    '#default_value' => variable_get('datalayer_lib_helper', FALSE),
   );
 
   $form['entity_meta'] = array(
