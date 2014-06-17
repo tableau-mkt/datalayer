@@ -52,7 +52,7 @@ Example:
 function _my_module_myevent_func($argument = FALSE) {
   if ($argument) {
     datalayer_add_dl(array(
-      'my_property' => $argument∏,
+      'my_property' => $argument,
       'my_other_property' => _my_module_other_funct($argument),
     ));
   }
