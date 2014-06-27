@@ -24,36 +24,22 @@ class DataLayerTests extends DrupalWebTestCase {
       'administer site configuration',
     ));
 
-    // Set specific meta data.
-  }
+    /**
+     * Setup content.
+     */
 
-  /**
-   * Overide the tearDown() methond. Ensure we don't destroy our own database.
-   */
-  public function tearDown() {
-    parent::tearDown();
-  }
+    // Need three vocabs.
+    $this->verbose("Need three vocabularies with terms");
+    //https://api.drupal.org/api/drupal/modules!taxonomy!taxonomy.test/class/TaxonomyWebTestCase/7
+    // Add terms in each.
+    // Add fields to nodes.
 
-
-  /**
-   * Tests configuration and output of admin settings.
-   */
-  public function dataLayerConfigOutput() {
-
-  	/**
-  	 * Setup content.
-  	 */
-
-  	// Need three vocabs.
-  	$this->verbose("Need three vocabularies with terms");
-  	// Add terms in each.
-  	// Add fields to nodes.
-
-  	$this->verbose("Need a node with terms");
-	  	// Tag node with terms.
-	  		// One tag in vocab_1. LATER: Confirm when not configured, doesn't output.
-	  		// Two tags in vocab_2. LATER: Affirm both output when configued.
-	  		// No tags in vocab_3. LATER: Confirm when not present doesn't ouptut.
+    $this->verbose("Need a node with terms");
+    //https://api.drupal.org/api/drupal/modules!node!node.test/function/NodeWebTestCase%3A%3AsetUp/7
+      // Tag node with terms.
+        // One tag in vocab_1. LATER: Confirm when not configured, doesn't output.
+        // Two tags in vocab_2. LATER: Affirm both output when configued.
+        // No tags in vocab_3. LATER: Confirm when not present doesn't ouptut.
 
     $settings = array(
       'type' => 'article',
@@ -74,25 +60,40 @@ class DataLayerTests extends DrupalWebTestCase {
     $this->verbose("Admin configurations");
 
     $admin = array(
-    	'datalayer_add_page_meta' => 1,
-    	'datalayer_output_terms' => 1,
-    	'datalayer_services_google' => 1,
-    	'datalayer_entity_meta[]' => array(
-    		'entityType',
-    		'bundle',
-    		'nid',
-    		'language',
-    		'name',
-    	),
-     	'datalayer_vocabs[]' => array(
-    		'test_vocab_1',
-    		'test_vocab_2',
-    	),
-   	);
+      'datalayer_add_page_meta' => 1,
+      'datalayer_output_terms' => 1,
+      'datalayer_services_google' => 1,
+      'datalayer_entity_meta[]' => array(
+        'entityType',
+        'bundle',
+        'nid',
+        'language',
+        'name',
+      ),
+      'datalayer_vocabs[]' => array(
+        'test_vocab_1',
+        'test_vocab_2',
+      ),
+    );
     // Save the form.
     $this->drupalPost('admin/config/search/datalayer', $admin, t('Save'));
     // Form was saved.
     $this->assertText(t('The configuration options have been saved.'));
+
+  }
+
+  /**
+   * Overide the tearDown() methond. Ensure we don't destroy our own database.
+   */
+  public function tearDown() {
+    parent::tearDown();
+  }
+
+
+  /**
+   * Tests configuration and output of admin settings.
+   */
+  public function dataLayerConfigOutput() {
 
     /**
      * Confirm output metadeta.
