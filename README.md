@@ -24,7 +24,7 @@ You can configure what gets pushed out via the admin page. This includes global 
       "25" : "Term Name",
       "26" : "Another Term"
     },
-    "my_types" : {
+    "my_type" : {
       "13" : "Some Tag",
       "14" : "Another Tag"
     }

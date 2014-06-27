@@ -46,7 +46,7 @@ function datalayer_preprocess_html(&$variables) {
     // Allow modules to alter data with hook_datalayer_dl_alter().
     drupal_alter('datalayer_dl', $ouput_data);
 
-    // Output page meta data.
+    // Output page meta data as an array of objects.
     $output = !empty($ouput_data) ? drupal_json_encode($ouput_data) : '';
     $render = array(
       '#type' => 'html_tag',
