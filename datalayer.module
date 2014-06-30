@@ -35,13 +35,14 @@ function datalayer_preprocess_html(&$variables) {
 
     $type = false;
     if ($obj = _datalayer_menu_get_any_object($type) && $type) {
-
       // Populate entity properties and values.
       $output_data = _datalayer_get_entity_data($obj, $type);
     }
 
     // Merge data from datalayer_add_dl(), which include defaults, with entity values.
     $ouput_data = array_merge($ouput_data, datalayer_get_dl());
+
+    $ouput_data['userUID'] = $GLOBALS['user']->uid;
 
     // Allow modules to alter data with hook_datalayer_dl_alter().
     drupal_alter('datalayer_dl', $ouput_data);
@@ -138,7 +139,7 @@ function _datalayer_get_entity_data($obj, $type) {
 
     // Explicit additions.
     $ouput_data['entityType'] = $type;
-    $ouput_data['bundle'] = (isset($obj->type)) ? $obj->type : false;
+    $ouput_data['entityBundle'] = (isset($obj->type)) ? $obj->type : false;
 
     // Output various entity properties. Allow additions/alterations.
     // NOTE: Properties mean different things on different entity types.
@@ -151,7 +152,7 @@ function _datalayer_get_entity_data($obj, $type) {
       // Include only entity valid and config selected.
       foreach ($properties as $p) {
         if (isset($obj->$p) && $selected_properties[$p]) {
-          $ouput_data[$p] = $obj->$p;
+          $ouput_data['entity' . ucfirst($p)] = $obj->$p;
         }
       }
     }
@@ -159,7 +160,7 @@ function _datalayer_get_entity_data($obj, $type) {
       // Include all in output, only entity valid.
       foreach ($properties as $p) {
         if (isset($obj->$p)) {
-          $ouput_data[$p] = $obj->$p;
+          $ouput_data['entity' . ucfirst($p)] = $obj->$p;
         }
       }
     }
@@ -167,12 +168,12 @@ function _datalayer_get_entity_data($obj, $type) {
     // Output term data.
     if (variable_get('datalayer_output_terms', TRUE)) {
       if ($type == 'taxonomy_term') {
-        $ouput_data['taxonomy'] = array($obj->vocabulary_machine_name => $obj->tid);
+        $ouput_data['entityTaxonomy'] = array($obj->vocabulary_machine_name => $obj->tid);
       }
       else {
         // Meta data on content.
         if ($terms = _datalayer_get_entity_terms($type, $obj->type, $obj)) {
-          $ouput_data['taxonomy'] = $terms;
+          $ouput_data['entityTaxonomy'] = $terms;
         }
       }
     }
@@ -220,8 +221,8 @@ function _datalayer_dl_defaults() {
   global $language, $user;
 
   return array(
-    'language' => $language->language,
-    'drupal.userStatus' => $user->uid > 0 ? 'authenticated' : 'anonymous',
+    'drupalLanguage' => $language->language,
+    'userStatus' => $user->uid > 0 ? 'authenticated' : 'anonymous',
   );
 }
 
