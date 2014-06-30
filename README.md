@@ -13,13 +13,15 @@ In order to do fun and fancy things on the client-side it's critial nice to have
 You can configure what gets pushed out via the admin page. This includes global control over all entity properties. You can also control if taxonomy should be inluded, and which vocabularies should be exposed. Here's _some_ of what's available by default...
 ```json
 {
-  "nid" : "123",
-  "title" : "My Cool Page",
+  "drupalLanguage": "en",
+  "userStatus": "anonymous"
+  "entityNID" : "123",
+  "entityTitle" : "My Cool Page",
   "entityType" : "node",
-  "bundle" : "article",
-  "uid" : "555",
-  "language" : "en",
-  "taxonomy" : {
+  "entityBundle" : "article",
+  "entityUID" : "555",
+  "entityLanguage" : "en",
+  "entityTaxonomy" : {
     "special_category" : {
       "25" : "Term Name",
       "26" : "Another Term"
@@ -39,8 +41,14 @@ You can easily suggest additional entity properties to the Data Layer module by 
 ```php
 function my_module_datalayer_meta() {  
   return array(
-    'my_entity_property',
+    'property',
   );
+}
+```
+It will be added to the page as:
+```json
+{
+  "entityProperty": "en"
 }
 ```
 
@@ -52,8 +60,8 @@ Example:
 function _my_module_myevent_func($argument = FALSE) {
   if ($argument) {
     datalayer_add_dl(array(
-      'my_property' => $argument,
-      'my_other_property' => _my_module_other_funct($argument),
+      'drupalMyProperty' => $argument,
+      'userAnotherProperty' => _my_module_other_funct($argument),
     ));
   }
 }
@@ -66,7 +74,7 @@ You can also alter what entity properties are available within the admin UI, and
 ```php
 function my_module_datalayer_meta_alter(&$properties) {
   // Override module norm in all cases.
-  unset($properties['uid']);
+  unset($properties['entityUID']);
 
   // Specific situation alteration...
   $type = false;
@@ -92,7 +100,7 @@ You can also directly alter output bound data with the `hook_datalayer_dl_alter(
 ```php
 function my_module_datalayer_dl_alter(&$data_layer) {
   // Make the title lowercase on some node type.
-  if (isset($data_layer['bundle']) && $data_layer['bundle'] == 'mytype') {
+  if (isset($data_layer['entityBundle']) && $data_layer['entityBundle'] == 'mytype') {
     $data_layer['title'] = strtolower($data_layer['title']);
   }
 }
@@ -104,9 +112,9 @@ There are lots of great client-side uses for your pages' data. You might act on 
 (function ($) {
   $(document).ready(function(){
 
-    if (typeof dataLayer.taxonomy.my_category !== 'undefined') {
-      if (dataLayer.taxonomy.my_category.hasOwnProperty('25')) {
-        doMyAction(dataLayer.uid, dataLayer.language, dataLayer.title);
+    if (typeof dataLayer.entityTaxonomy.my_category !== 'undefined') {
+      if (dataLayer.entityTaxonomy.my_category.hasOwnProperty('25')) {
+        doMyAction(dataLayer.entityUID, dataLayer.drupalLanguage, dataLayer.entityTitle);
       }
     }
 
