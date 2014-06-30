@@ -14,7 +14,7 @@ You can configure what gets pushed out via the admin page. This includes global 
 ```json
 {
   "drupalLanguage": "en",
-  "userStatus": "anonymous"
+  "userStatus": "anonymous",
   "entityNID" : "123",
   "entityTitle" : "My Cool Page",
   "entityType" : "node",
@@ -48,7 +48,7 @@ function my_module_datalayer_meta() {
 It will be added to the page as:
 ```json
 {
-  "entityProperty": "en"
+  "entityProperty": "whatever the value is"
 }
 ```
 
@@ -101,7 +101,7 @@ You can also directly alter output bound data with the `hook_datalayer_dl_alter(
 function my_module_datalayer_dl_alter(&$data_layer) {
   // Make the title lowercase on some node type.
   if (isset($data_layer['entityBundle']) && $data_layer['entityBundle'] == 'mytype') {
-    $data_layer['title'] = strtolower($data_layer['title']);
+    $data_layer['entityTitle'] = strtolower($data_layer['entityTitle']);
   }
 }
 ```
@@ -127,13 +127,14 @@ You add new data to the data layer dynamically.
 ```javascript
 // Inform of link clicks.
 $(".my-links").click(function() {
-  dataLayer.push({ 'link-click': $(this).text() });
+  dataLayer.push({ 'eventLinkClick': $(this).text() });
 });
 
 // Inform of Views filter changes.
 $(".views-widget select.form-select").change(function() {
   dataLayer.push({
-    'filter-set': $(this).find("option:selected").text()
+    'eventFilterSet': $(this).closest('.view').attr('id') + ':' +
+      $(this).attr('name') + ':' + $(this).find("option:selected").text();
   });
 });
 ``` 
