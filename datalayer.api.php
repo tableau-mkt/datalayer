@@ -10,8 +10,9 @@
 
 /**
  * @defgroup datalayer_hooks Data Layer hooks
+ *
  * @{
- * Hooks that can be implemented by other modules in order to extend the Data Layer module.
+ * Hooks that can be implemented to externally extend the Data Layer module.
  */
 
 /**
@@ -53,4 +54,5 @@ function hook_datalayer_dl_alter(&$data_layer) {
 
 /**
  * @}
+ * End hook documentation.
  */
