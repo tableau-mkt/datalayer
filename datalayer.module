@@ -28,7 +28,7 @@ function datalayer_menu() {
  * Outputs meta data details of the page.
  */
 function datalayer_preprocess_html(&$variables) {
-  $output_data = _datalayer_dl_defaults();
+  $output_data = array();
 
   // Add details about the page.
   if (variable_get('datalayer_add_page_meta', TRUE)) {
@@ -213,12 +213,8 @@ function _datalayer_get_entity_data($obj, $type) {
  *   All data layer data added thus far.
  */
 function datalayer_add_dl($data = array(), $overwrite = FALSE) {
-  $output_data = &drupal_static(__FUNCTION__);
-
-  if (empty($output_data)) {
-    $output_data = _datalayer_dl_defaults();
-  }
-
+  $output_data = &drupal_static(__FUNCTION__, _datalayer_dl_defaults());
+  
   // If we've been given data, add it to the output.
   if (!empty($data)) {
     if ($overwrite) {
