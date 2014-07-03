@@ -1,23 +1,15 @@
 <?php
 /**
  * @file
- * Documentation only.
- * 
+ * Documentation for the Data Layer module.
+ *
  * This file contains no working PHP code; it exists to provide additional
  * documentation for doxygen as well as to document hooks in the standard
  * Drupal manner.
  */
 
 /**
- * @defgroup datalayer
- *   Data Layer module integrations.
- *
- * Module integrations with the Data Layer module.
- */
-
-/**
- * @defgroup datalayer_hooks
- *   Data Layer hooks
+ * @defgroup datalayer_hooks Data Layer hooks
  * @{
  * Hooks that can be implemented by other modules in order to extend the Data Layer module.
  */
@@ -36,21 +28,21 @@ function hook_datalayer_output_meta() {
 /**
  * Alter the Data Layer data before it is output to the screen.
  *
- * @param {array} $properties
+ * @param array $properties
  *   Data layer properties to output on entiity pages.
  */
 function hook_datalayer_meta_alter($properties) {
   // EXAMPLE:
   // Remove author uid if anonymous or admin.
   if ($properties['uid'] == 0 || $properties['uid'] == 1) {
-  	unset($properties['uid']);
+    unset($properties['uid']);
   }
 }
 
 /**
  * Alter the Data Layer data before it is output to the screen.
  *
- * @param {array} $data_layer
+ * @param array $data_layer
  *   GTM data layer data for the current page.
  */
 function hook_datalayer_dl_alter(&$data_layer) {

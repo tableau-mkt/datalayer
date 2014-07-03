@@ -24,7 +24,7 @@ function datalayer_menu() {
 
 /**
  * Implements hook_preprocess_HOOK().
- * 
+ *
  * Outputs meta data details of the page.
  */
 function datalayer_preprocess_html(&$variables) {
@@ -79,8 +79,8 @@ function datalayer_preprocess_html(&$variables) {
 
 /**
  * Collects up meta data for output.
- * 
- * @return {array}
+ *
+ * @return array
  *   Array of all candidate entity properties.
  */
 function _datalayer_collect_meta_properties() {
@@ -104,7 +104,7 @@ function _datalayer_collect_meta_properties() {
 
 /**
  * Implements hook_datalayer_meta().
- * 
+ *
  * Defines default meta data.
  */
 function datalayer_datalayer_meta() {
@@ -126,13 +126,13 @@ function datalayer_datalayer_meta() {
 /**
  * Collect entity data for output and altering.
  *
- * @param {object} $obj
+ * @param object $obj
  *   Entity object of the page menu callback.
- * @param {string} $type
+ * @param string $type
  *   String representing entitie's type.
  *
- * @return
- *   Array of all properties and values for output of page entity.
+ * @return array
+ *   All properties and values for output of page entity.
  */
 function _datalayer_get_entity_data($obj, $type) {
   $output_data = &drupal_static(__FUNCTION__);
@@ -200,15 +200,14 @@ function _datalayer_get_entity_data($obj, $type) {
 
 
 /**
- * Allow adding to the data layer output easy on the fly.
- * Think of this as a drupal_add_js().
+ * Allow adding to the data layer easy on the fly, similar to drupal_add_js().
  *
- * @param {array} $data
+ * @param array $data
  *   An array of dataLayer data keyed by variable name.
- * @param {boolean} $overwrite
- *   If data should overwrite existing dataLayer vars of same name. Defaults FALSE.
+ * @param boolean $overwrite
+ *   If data should overwrite existing dataLayer vars of same name.
  *
- * @return {array}
+ * @return array
  *   All data layer data added thus far.
  */
 function datalayer_add_dl($data = array(), $overwrite = FALSE) {
@@ -243,13 +242,12 @@ function _datalayer_dl_defaults() {
 
 
 /**
- * Utility function to agnosticly get the current menu object.
- * Structured like menu_get_object(), but the passed type will be set for you.
+ * Agnosticly get the current menu object. Passed type will be set for you.
  *
- * @param {string} (reference) $return_type
+ * @param string $return_type
  *   Pass in a type variable by reference for later use.
  *
- * return {object}
+ * return object
  *   Entity object of current menu callback page.
  */
 function _datalayer_menu_get_any_object(&$return_type) {
@@ -285,15 +283,16 @@ function _datalayer_menu_get_any_object(&$return_type) {
 
 
 /**
- * Utility function to fetch all taxonomy terms from an entity.
+ * Fetch all taxonomy terms from an entity.
+ *
  * All fields of field type "taxonomy_term_reference" will be included.
  * Idea found at https://api.drupal.org/comment/50393#comment-50393
  *
- * @param {string} $entity_type
+ * @param string $entity_type
  *   What type of entity.
- * @param {string} $bundle
+ * @param string $bundle
  *   What bundle within entity type.
- * @param {object} $entity
+ * @param object $entity
  *   Actual entity object to process.
  *
  * @return array

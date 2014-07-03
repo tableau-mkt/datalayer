@@ -1,5 +1,10 @@
 <?php
 /**
+ * @file
+ * Admin-only functionality.
+ */
+
+/**
  * Form callback for module configuration.
  */
 function datalayer_settings_form($form_state) {
