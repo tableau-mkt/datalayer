@@ -1,9 +1,12 @@
 Data Layer
 ==============
-**Get page meta data from Drupal to the client-side.**
+**Get page meta data from inside Drupal out to the client-side.**
 
-This Drupal module outputs various page meta data, which is good for all kind of front-end uses.
-The phase "data layer" is a Google term, but it's a great standard for your server to setup a foundation for the front-end. It's genertic enough that other services managed in GTM can use application data, also you can use this data on your site to implement great client-side features, like anonymous user tracking, etc.
+This Drupal module outputs various CMS page meta data (like content type, author uid, taxonomy terms), which can be used for all kinds of front-end features. This works for all entity types and is easy to extend with hooks.
+
+The phase "data layer" is a Google term, but it's a great standard for your server to setup a foundation for the front-end. It's generic enough that other services managed in GTM can use application data, also you can use this data on your site to implement great client-side features, like anonymous user tracking, etc.
+
+This module was created to work with <a href="https://www.drupal.org/project/semi_anonymous">Semi Anonymous</a>, but is more widely useful.
 
 **Issues:** Post problems or feature requests to the [Drupal project issue queue](https://drupal.org/project/issues/datalayer).
 
