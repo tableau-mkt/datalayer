@@ -70,7 +70,7 @@ function datalayer_settings_form($form_state) {
     '#type' => 'fieldset',
     '#title' => t('Vocabularies'),
     '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
+    '#collapsed' => TRUE,
     '#description' => t('The vocabularies which should be output within page meta data.'),
   );
   $form['vocabs']['datalayer_vocabs'] = array(

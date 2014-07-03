@@ -28,27 +28,27 @@ function datalayer_menu() {
  * Outputs meta data details of the page.
  */
 function datalayer_preprocess_html(&$variables) {
-  $ouput_data = _datalayer_dl_defaults();
+  $output_data = _datalayer_dl_defaults();
 
   // Add details about the page.
-  if (variable_get($m . 'datalayer_add_page_meta', FALSE)) {
+  if (variable_get('datalayer_add_page_meta', TRUE)) {
 
     $type = false;
-    if ($obj = _datalayer_menu_get_any_object($type) && $type) {
+    $obj = _datalayer_menu_get_any_object($type);
+    if (is_object($obj) && $type) {
       // Populate entity properties and values.
       $output_data = _datalayer_get_entity_data($obj, $type);
     }
 
     // Merge data from datalayer_add_dl(), which include defaults, with entity values.
-    $ouput_data = array_merge($ouput_data, datalayer_get_dl());
-
-    $ouput_data['userUID'] = $GLOBALS['user']->uid;
+    $output_data = array_merge($output_data, datalayer_add_dl());
 
     // Allow modules to alter data with hook_datalayer_dl_alter().
-    drupal_alter('datalayer_dl', $ouput_data);
+    drupal_alter('datalayer_dl', $output_data);
 
     // Output page meta data as an array of objects.
-    $output = !empty($ouput_data) ? drupal_json_encode($ouput_data) : '';
+    $output = !empty($output_data) ? drupal_json_encode($output_data) : '';
+
     $render = array(
       '#type' => 'html_tag',
       '#tag' => 'script',
@@ -134,50 +134,67 @@ function datalayer_datalayer_meta() {
  *   Array of all properties and values for output of page entity. 
  */
 function _datalayer_get_entity_data($obj, $type) {
-  $ouput_data = &drupal_static(__FUNCTION__);
-  if (!isset($ouput_data)) {
+  $output_data = &drupal_static(__FUNCTION__);
+  if (empty($output_data)) {
 
     // Explicit additions.
-    $ouput_data['entityType'] = $type;
-    $ouput_data['entityBundle'] = (isset($obj->type)) ? $obj->type : false;
+    $output_data['entityType'] = $type;
+    $output_data['entityBundle'] = (isset($obj->type)) ? $obj->type : false;
 
     // Output various entity properties. Allow additions/alterations.
     // NOTE: Properties mean different things on different entity types.
     $properties = _datalayer_collect_meta_properties();
-    $selected_properties = variable_get($m . 'entity_meta');
+    $selected_properties = array_filter(variable_get('datalayer_entity_meta', array()));
 
-    // Build meta output.
+    // Build meta output...
     // Honor selective output configuration.
-    if (count($selected_properties) > 0) {
-      // Include only entity valid and config selected.
+    if (empty($selected_properties)) {
+      // Include all in output, only entity valid.
       foreach ($properties as $p) {
-        if (isset($obj->$p) && $selected_properties[$p]) {
-          $ouput_data['entity' . ucfirst($p)] = $obj->$p;
+        if (isset($obj->$p)) {
+          $output_data['entity' . ucfirst($p)] = $obj->$p;
         }
       }
     }
     else {
-      // Include all in output, only entity valid.
+      // Include only entity valid and config selected.
       foreach ($properties as $p) {
-        if (isset($obj->$p)) {
-          $ouput_data['entity' . ucfirst($p)] = $obj->$p;
+        if (isset($obj->$p) && $selected_properties[$p]) {
+          $output_data['entity' . ucfirst($p)] = $obj->$p;
         }
       }
     }
 
     // Output term data.
     if (variable_get('datalayer_output_terms', TRUE)) {
+      $selected_vocabs = array_filter(variable_get('datalayer_vocabs', array()));
+
       if ($type == 'taxonomy_term') {
-        $ouput_data['entityTaxonomy'] = array($obj->vocabulary_machine_name => $obj->tid);
+        $output_data['entityTaxonomy'] = array($obj->vocabulary_machine_name => $obj->tid);
       }
       else {
+
         // Meta data on content.
-        if ($terms = _datalayer_get_entity_terms($type, $obj->type, $obj)) {
-          $ouput_data['entityTaxonomy'] = $terms;
+        if ($taxonomy = _datalayer_get_entity_terms($type, $obj->type, $obj)) {
+          // Limit configured vocabs.
+          if (empty($selected_vocabs)) {
+            $output_data['entityTaxonomy'] = $taxonomy;
+          }
+          else {
+            foreach ($taxonomy as $vocab => $terms) {
+              if (isset($selected_vocabs[$vocab])) {
+                $output_data['entityTaxonomy'][$vocab] = $terms;
+              }
+            }
+          }
         }
+
       }
     }
+
   }
+
+dsm($output_data);
 
   return $output_data;
 }
@@ -199,6 +216,10 @@ function _datalayer_get_entity_data($obj, $type) {
  */
 function datalayer_add_dl($data = array(), $overwrite = FALSE) {
   $output_data = &drupal_static(__FUNCTION__);
+
+  if (empty($output_data)) {
+    $output_data = _datalayer_dl_defaults();
+  }
 
   // If we've been given data, add it to the output.
   if (!empty($data)) {
@@ -223,6 +244,7 @@ function _datalayer_dl_defaults() {
   return array(
     'drupalLanguage' => $language->language,
     'userStatus' => $user->uid > 0 ? 'authenticated' : 'anonymous',
+    'userUID' => $user->uid,
   );
 }
 
@@ -284,7 +306,6 @@ function _datalayer_menu_get_any_object(&$return_type) {
  */
 function _datalayer_get_entity_terms($entity_type, $bundle, $entity) {
   $terms = array();
-  $vocabs = variable_get('datalayer_vocabs', array());
 
   // Use very lightweight field info list to find relevant fields.
   foreach (field_info_field_map() as $field_name => $field_info) {
@@ -299,10 +320,7 @@ function _datalayer_get_entity_terms($entity_type, $bundle, $entity) {
           foreach ((array)$values as $termArray) {
             // Limit to existant tids.
             if (isset($termArray['tid']) && $term = taxonomy_term_load($termArray['tid'])) {
-              // Limit configured vocabs.
-              if ($vocabs[$term->vocabulary_machine_name]) {
-                $terms[$term->vocabulary_machine_name][$term->tid] = $term->name;
-              }
+              $terms[$term->vocabulary_machine_name][$term->tid] = $term->name;
             }
           }
         }
