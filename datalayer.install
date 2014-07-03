@@ -4,7 +4,6 @@
  * Install, update, and uninstall hooks for the Data Layer module.
  */
 
-
 /**
  * Implements hook_uninstall().
  */

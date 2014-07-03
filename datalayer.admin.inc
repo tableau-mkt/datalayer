@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Form callback for module configuration.
  */
@@ -52,7 +51,7 @@ function datalayer_settings_form($form_state) {
     '#title' => t('Meta data'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
-    '#description' => 'The meta data details to ouput for client-side consumption. Marking none will output everything available.',
+    '#description' => t('The meta data details to ouput for client-side consumption. Marking none will output everything available.'),
   );
   $form['entity_meta']['datalayer_entity_meta'] = array(
     '#type' => 'checkboxes',

@@ -4,7 +4,6 @@
  * Client-side data space.
  */
 
-
 /**
  * Implements hook_menu().
  */
@@ -25,6 +24,7 @@ function datalayer_menu() {
 
 /**
  * Implements hook_preprocess_HOOK().
+ * 
  * Outputs meta data details of the page.
  */
 function datalayer_preprocess_html(&$variables) {
@@ -33,14 +33,14 @@ function datalayer_preprocess_html(&$variables) {
   // Add details about the page.
   if (variable_get('datalayer_add_page_meta', TRUE)) {
 
-    $type = false;
+    $type = FALSE;
     $obj = _datalayer_menu_get_any_object($type);
     if (is_object($obj) && $type) {
       // Populate entity properties and values.
       $output_data = _datalayer_get_entity_data($obj, $type);
     }
 
-    // Merge data from datalayer_add_dl(), which include defaults, with entity values.
+    // Merge data from datalayer_add_dl() (includes defaults) and entity values.
     $output_data = array_merge($output_data, datalayer_add_dl());
 
     // Allow modules to alter data with hook_datalayer_dl_alter().
@@ -80,7 +80,7 @@ function datalayer_preprocess_html(&$variables) {
 /**
  * Collects up meta data for output.
  * 
- * @return
+ * @return {array}
  *   Array of all candidate entity properties.
  */
 function _datalayer_collect_meta_properties() {
@@ -104,6 +104,7 @@ function _datalayer_collect_meta_properties() {
 
 /**
  * Implements hook_datalayer_meta().
+ * 
  * Defines default meta data.
  */
 function datalayer_datalayer_meta() {
@@ -124,14 +125,14 @@ function datalayer_datalayer_meta() {
 
 /**
  * Collect entity data for output and altering.
- * 
- * @param $obj
+ *
+ * @param {object} $obj
  *   Entity object of the page menu callback.
- * @param $type
+ * @param {string} $type
  *   String representing entitie's type.
  *
  * @return
- *   Array of all properties and values for output of page entity. 
+ *   Array of all properties and values for output of page entity.
  */
 function _datalayer_get_entity_data($obj, $type) {
   $output_data = &drupal_static(__FUNCTION__);
@@ -139,7 +140,7 @@ function _datalayer_get_entity_data($obj, $type) {
 
     // Explicit additions.
     $output_data['entityType'] = $type;
-    $output_data['entityBundle'] = (isset($obj->type)) ? $obj->type : false;
+    $output_data['entityBundle'] = (isset($obj->type)) ? $obj->type : FALSE;
 
     // Output various entity properties. Allow additions/alterations.
     // NOTE: Properties mean different things on different entity types.
@@ -202,19 +203,17 @@ function _datalayer_get_entity_data($obj, $type) {
  * Allow adding to the data layer output easy on the fly.
  * Think of this as a drupal_add_js().
  *
- * @param $data
+ * @param {array} $data
  *   An array of dataLayer data keyed by variable name.
+ * @param {boolean} $overwrite
+ *   If data should overwrite existing dataLayer vars of same name. Defaults FALSE.
  *
- * @param $overwrite
- *   TRUE if data provided should overwrite existing dataLayer variables of the
- *   same name. Defaults to FALSE.
- *
- * @return
+ * @return {array}
  *   All data layer data added thus far.
  */
 function datalayer_add_dl($data = array(), $overwrite = FALSE) {
   $output_data = &drupal_static(__FUNCTION__, _datalayer_dl_defaults());
-  
+
   // If we've been given data, add it to the output.
   if (!empty($data)) {
     if ($overwrite) {
@@ -247,9 +246,10 @@ function _datalayer_dl_defaults() {
  * Utility function to agnosticly get the current menu object.
  * Structured like menu_get_object(), but the passed type will be set for you.
  *
- * @param string (reference) $return_type
+ * @param {string} (reference) $return_type
+ *   Pass in a type variable by reference for later use.
  *
- * return object
+ * return {object}
  *   Entity object of current menu callback page.
  */
 function _datalayer_menu_get_any_object(&$return_type) {
@@ -262,7 +262,7 @@ function _datalayer_menu_get_any_object(&$return_type) {
 
   // Compare to entity types.
   $entity_info = entity_get_info();
-  foreach($entity_info as $i => $e) {
+  foreach ($entity_info as $i => $e) {
     if ($e['load hook'] == $load_function) {
       $type = $i;
     }
@@ -270,7 +270,7 @@ function _datalayer_menu_get_any_object(&$return_type) {
 
   // Many happy returns.
   if ($type && $obj = menu_get_object($type, $arg_position)) {
-    if(is_object($obj)) {
+    if (is_object($obj)) {
       $return_type = $type;
       return $obj;
     }
@@ -287,13 +287,14 @@ function _datalayer_menu_get_any_object(&$return_type) {
 /**
  * Utility function to fetch all taxonomy terms from an entity.
  * All fields of field type "taxonomy_term_reference" will be included.
- *
  * Idea found at https://api.drupal.org/comment/50393#comment-50393
- * Thanks to HydroZ.
  *
- * @param String $entity_type
- * @param $string $bundle
- * @param Object $entity
+ * @param {string} $entity_type
+ *   What type of entity.
+ * @param {string} $bundle
+ *   What bundle within entity type.
+ * @param {object} $entity
+ *   Actual entity object to process.
  *
  * @return array
  *   Array with tids of entity.
@@ -311,9 +312,9 @@ function _datalayer_get_entity_terms($entity_type, $bundle, $entity) {
         if (isset($entity->{$field_name})) {
           // Collect terms from fields for return.
           $values = field_get_items($entity_type, $entity, $field_name);
-          foreach ((array)$values as $termArray) {
+          foreach ((array) $values as $term_array) {
             // Limit to existant tids.
-            if (isset($termArray['tid']) && $term = taxonomy_term_load($termArray['tid'])) {
+            if (isset($term_array['tid']) && $term = taxonomy_term_load($term_array['tid'])) {
               $terms[$term->vocabulary_machine_name][$term->tid] = $term->name;
             }
           }
