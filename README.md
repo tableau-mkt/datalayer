@@ -2,24 +2,23 @@ Data Layer
 ==============
 **Get page meta data from Drupal to the client-side.**
 
-This Drupal module outputs various page meta data, which can be useful for all kind of front-end uses.
-The phase "data layer" is mostly a Google term, but it's more-or-less a standard for your application to communicate with Analytics and Tag Manager. It's genertic enough that other services managed in GTM can use application data, also you can use this data on your site to implement great client-side features, anonymous user tracking, etc.
+This Drupal module outputs various page meta data, which is good for all kind of front-end uses.
+The phase "data layer" is a Google term, but it's a great standard for your server to setup a foundation for the front-end. It's genertic enough that other services managed in GTM can use application data, also you can use this data on your site to implement great client-side features, like anonymous user tracking, etc.
 
 **Issues:** Post problems or feature requests to the [Drupal project issue queue](https://drupal.org/project/issues/datalayer).
 
 ## Meta data output
-In order to do fun and fancy things on the client-side it's critial nice to have easy and reliable access to the meta data about the pages of your site. This modules helps output that info. Yes, you could get some of this from the DOM, but that's messy.
-
-You can configure what gets pushed out via the admin page. This includes global control over all entity properties. You can also control if taxonomy should be inluded, and which vocabularies should be exposed. Here's _some_ of what's available by default...
+It's critial to have easy and reliable JS access to the meta data about the pages of your site. This modules helps output that info. Yes, you could get some of this from the DOM, but that's messy. Configure what gets pushed out via the admin page. This includes global control over all entity properties. You can also control if taxonomy should be inluded, and which vocabularies should be exposed. Here's _some_ of what's available by default...
 ```json
 {
   "drupalLanguage": "en",
   "userStatus": "anonymous",
-  "entityNID" : "123",
+  "userUid": "555",
+  "entityNid" : "123",
   "entityTitle" : "My Cool Page",
   "entityType" : "node",
   "entityBundle" : "article",
-  "entityUID" : "555",
+  "entityUid" : "555",
   "entityLanguage" : "en",
   "entityTaxonomy" : {
     "special_category" : {
@@ -70,11 +69,11 @@ function _my_module_myevent_func($argument = FALSE) {
 ## Alter output
 
 ### Alter available properties
-You can also alter what entity properties are available within the admin UI, and as candidates via the `hook_datalayer_meta_alter()` function. _You may want to take advantage of the entity agnostic menu object loader function found within the module._ For example you might want to hide author information in some special cases...
+You can also alter what entity properties are available within the admin UI (add candidates) via the `hook_datalayer_meta_alter()` function. You may want to take advantage of the entity agnostic menu object loader function found within the module. For example you might want to hide author information in some special cases...
 ```php
 function my_module_datalayer_meta_alter(&$properties) {
   // Override module norm in all cases.
-  unset($properties['entityUID']);
+  unset($properties['entityUid']);
 
   // Specific situation alteration...
   $type = false;
@@ -107,15 +106,22 @@ function my_module_datalayer_dl_alter(&$data_layer) {
 ```
 
 ## Use the data layer client-side
-There are lots of great client-side uses for your pages' data. You might act on this info like this...
+There are lots of great client-side uses for your pages' data. The `dataLayer` object is used as a warehouse for Google Analytics and GTM, and is therefor an array of objects. To safely access properties you should use the <a href="#data-layer-helper">data-layer-helper</a> library, a dependency of this module.
+You might act on this info like this...
 ```javascript
 (function ($) {
   $(document).ready(function(){
 
-    if (typeof dataLayer.entityTaxonomy.my_category !== 'undefined') {
-      if (dataLayer.entityTaxonomy.my_category.hasOwnProperty('25')) {
-        doMyAction(dataLayer.entityUID, dataLayer.drupalLanguage, dataLayer.entityTitle);
-      }
+    var myHelper = new DataLayerHelper(dataLayer),
+        myVocab = myHelper.get('entityTaxonomy.my_category');
+
+    // Check for term tag present.
+    if (typeof myVocab !== 'undefined' && myVocab.hasOwnProperty(25)) {
+      doMyThing(
+        myHelper.get('entityUid'),
+        myHelper.get('drupalLanguage'),
+        myHelper.get('entityTitle')
+      );
     }
 
   });
@@ -123,7 +129,7 @@ There are lots of great client-side uses for your pages' data. You might act on 
 ```
 
 ## Dynamic additions
-You add new data to the data layer dynamically.
+You can add new data to the data layer dynamically. This is how GA does it, you should follow those patterns.
 ```javascript
 // Inform of link clicks.
 $(".my-links").click(function() {

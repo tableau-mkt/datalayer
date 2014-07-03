@@ -194,8 +194,6 @@ function _datalayer_get_entity_data($obj, $type) {
 
   }
 
-dsm($output_data);
-
   return $output_data;
 }
 
@@ -244,7 +242,7 @@ function _datalayer_dl_defaults() {
   return array(
     'drupalLanguage' => $language->language,
     'userStatus' => $user->uid > 0 ? 'authenticated' : 'anonymous',
-    'userUID' => $user->uid,
+    'userUid' => $user->uid,
   );
 }
 
