@@ -7,7 +7,7 @@
 /**
  * Implements hook_uninstall().
  */
-function datalayer_page_uninstall() {
+function datalayer_uninstall() {
   $variables = array(
     'datalayer_add_page_meta',
     'datalayer_lib_helper',

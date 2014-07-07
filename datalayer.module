@@ -235,7 +235,6 @@ function _datalayer_dl_defaults() {
 
   return array(
     'drupalLanguage' => $language->language,
-    'userStatus' => $user->uid > 0 ? 'authenticated' : 'anonymous',
     'userUid' => $user->uid,
   );
 }
