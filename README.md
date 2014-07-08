@@ -39,7 +39,7 @@ It's critial to have easy and reliable JS access to the meta data about the page
 ## Adding to the data layer
 
 ### Suggest entity properties
-You can easily suggest additional entity properties to the Data Layer module by using the `hook_datalayer_output_meta()` function. Example:
+You can easily suggest additional entity properties to the Data Layer module by using the `hook_datalayer_meta()` function. Example:
 ```php
 function my_module_datalayer_meta() {  
   return array(
@@ -55,13 +55,13 @@ It will be added to the page as:
 ```
 
 ### Add data layer values
-In order to easily add data layer properties and values on the fly within your code, use the `datalayer_add_dl()` function much like you would `drupal_add_js` or `drupal_add_css`.
-NOTE: In that case of matching keys, any added property/value pairs can overwrite those already available via normal entity output. You _should_ be using the `datalayer_dl_alter()` function if that's the intent, as added properties are available there.
+In order to easily add data layer properties and values on the fly within your code, use the `datalayer_add()` function much like you would `drupal_add_js` or `drupal_add_css`.
+NOTE: In that case of matching keys, any added property/value pairs can overwrite those already available via normal entity output. You _should_ be using the `datalayer_alter()` function if that's the intent, as added properties are available there.
 Example:
 ```php
 function _my_module_myevent_func($argument = FALSE) {
   if ($argument) {
-    datalayer_add_dl(array(
+    datalayer_add(array(
       'drupalMyProperty' => $argument,
       'userAnotherProperty' => _my_module_other_funct($argument),
     ));
@@ -98,9 +98,9 @@ function my_module_datalayer_meta_alter(&$properties) {
 ```
 
 ### Alter output values
-You can also directly alter output bound data with the `hook_datalayer_dl_alter()` function. Use this to alter values found in normal entity output or added by `datalayer_add_dl()` within the same or other modules, to support good architecture.
+You can also directly alter output bound data with the `hook_datalayer_alter()` function. Use this to alter values found in normal entity output or added by `datalayer_add()` within the same or other modules, to support good architecture.
 ```php
-function my_module_datalayer_dl_alter(&$data_layer) {
+function my_module_datalayer_alter(&$data_layer) {
   // Make the title lowercase on some node type.
   if (isset($data_layer['entityBundle']) && $data_layer['entityBundle'] == 'mytype') {
     $data_layer['entityTitle'] = strtolower($data_layer['entityTitle']);

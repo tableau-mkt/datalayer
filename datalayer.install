@@ -12,7 +12,7 @@ function datalayer_uninstall() {
     'datalayer_add_page_meta',
     'datalayer_lib_helper',
     'datalayer_output_terms',
-    'datalayer_entity_meta',
+    'datalayer_global_entity_meta',
     'datalayer_vocabs',
   );
 

@@ -23,6 +23,34 @@ function datalayer_menu() {
 
 
 /**
+ * Implements hook_libraries_info().
+ *
+ * Defines external libraries.
+ */
+function datalayer_libraries_info() {
+  $libraries = array();
+
+  $libraries['data-layer-helper'] = array(
+    'name' => 'Data Layer Helper',
+    'version' => '0.1.0',
+    'vendor url' => 'https://github.com/google/data-layer-helper',
+    'download url' => 'https://github.com/google/data-layer-helper/archive/master.zip',
+    'files' => array(
+      'js' => array(
+        'data-layer-helper.js' => array(
+          'type' => 'file',
+          'group' => JS_LIBRARY,
+          'every_page' => TRUE,
+        ),
+      ),
+    ),
+    'error message' => t('Data layer helper library missing.'),
+  );
+  return $libraries;
+}
+
+
+/**
  * Implements hook_preprocess_HOOK().
  *
  * Outputs meta data details of the page.
@@ -30,50 +58,55 @@ function datalayer_menu() {
 function datalayer_preprocess_html(&$variables) {
   $output_data = array();
 
-  // Add details about the page.
+  // Add details about the entity page.
   if (variable_get('datalayer_add_page_meta', TRUE)) {
-
     $type = FALSE;
     $obj = _datalayer_menu_get_any_object($type);
     if (is_object($obj) && $type) {
       // Populate entity properties and values.
       $output_data = _datalayer_get_entity_data($obj, $type);
     }
+  }
 
-    // Merge data from datalayer_add_dl() (includes defaults) and entity values.
-    $output_data = array_merge($output_data, datalayer_add_dl());
+  // Merge with datalayer_add(), includes defaults.
+  $output_data = array_merge($output_data, datalayer_add());
 
-    // Allow modules to alter data with hook_datalayer_dl_alter().
-    drupal_alter('datalayer_dl', $output_data);
+  // Allow modules to alter data with hook_datalayer_alter().
+  drupal_alter('datalayer', $output_data);
 
-    // Output page meta data as an array of objects.
-    $output = !empty($output_data) ? drupal_json_encode($output_data) : '';
+  $output = !empty($output_data) ? drupal_json_encode($output_data) : '';
+  $render = array(
+    '#type' => 'html_tag',
+    '#tag' => 'script',
+    '#value' => 'dataLayer = [' . $output . '];',
+    '#attributes' => array(
+      'type' => 'text/javascript',
+    ),
+  );
+  drupal_add_html_head($render, 'datalayer_meta');
 
-    $render = array(
-      '#type' => 'html_tag',
-      '#tag' => 'script',
-      '#value' => 'dataLayer = [' . $output . '];',
-      '#attributes' => array(
-        'type' => 'text/javascript',
-      ),
-    );
-    drupal_add_html_head($render, 'datalayer_meta');
-
-    // Include data-layer-helper library.
-    if (variable_get('datalayer_lib_helper', FALSE)) {
-      if (function_exists('libraries_load') && libraries_load('data-layer-helper')) {
-        // You have Libraries 2.0 and some other module registered this.
-        // The test above will cause the load.
+  // Include data-layer-helper library.
+  if (variable_get('datalayer_lib_helper', FALSE)) {
+    // Libraries 2.0
+    if (function_exists('libraries_load')) {
+      if (($library = libraries_detect('data-layer-helper')) && !empty($library['installed'])) {
+        libraries_load('data-layer-helper');
       }
       else {
-        $path = libraries_get_path('data-layer-helper');
-        if (!empty($path) && file_exists($path . '/data-layer-helper.js')) {
-          drupal_add_js($path . '/data-layer-helper.js');
-        }
+        // Something went wrong.
+        $error = $library['error'];
+        $error_message = $library['error message'];
       }
     }
-
+    else {
+      // Libraies 1.0
+      $path = libraries_get_path('data-layer-helper');
+      if (!empty($path) && file_exists($path . '/data-layer-helper.js')) {
+        drupal_add_js($path . '/data-layer-helper.js');
+      }
+    }
   }
+
 }
 
 
@@ -145,7 +178,7 @@ function _datalayer_get_entity_data($obj, $type) {
     // Output various entity properties. Allow additions/alterations.
     // NOTE: Properties mean different things on different entity types.
     $properties = _datalayer_collect_meta_properties();
-    $selected_properties = array_filter(variable_get('datalayer_entity_meta', array()));
+    $selected_properties = array_filter(variable_get('datalayer_global_entity_meta', array()));
 
     // Build meta output...
     // Honor selective output configuration.
@@ -210,8 +243,8 @@ function _datalayer_get_entity_data($obj, $type) {
  * @return array
  *   All data layer data added thus far.
  */
-function datalayer_add_dl($data = array(), $overwrite = FALSE) {
-  $output_data = &drupal_static(__FUNCTION__, _datalayer_dl_defaults());
+function datalayer_add($data = array(), $overwrite = FALSE) {
+  $output_data = &drupal_static(__FUNCTION__, _datalayer_defaults());
 
   // If we've been given data, add it to the output.
   if (!empty($data)) {
@@ -230,7 +263,7 @@ function datalayer_add_dl($data = array(), $overwrite = FALSE) {
 /**
  * Defines Drupal-wide data layer defaults.
  */
-function _datalayer_dl_defaults() {
+function _datalayer_defaults() {
   global $language, $user;
 
   return array(

@@ -47,8 +47,14 @@ function datalayer_settings_form($form_state) {
         ':input[name="datalayer_add_page_meta"]' => array('checked' => TRUE),
       ),
     ),
-    '#title' => t('Include data-layer-helper library'),
+    '#title' => t('Include "data layer helper" library'),
     '#default_value' => variable_get('datalayer_lib_helper', FALSE),
+    '#description' => t('Provides the ability to process messages passed to the dataLayer. See: !link on GitHub.',
+      array('!link' => l('data-layer-helper',
+        'https://github.com/google/data-layer-helper',
+        array('external' => TRUE, 'attributes' => array('target' => '_blank'))
+      )
+    )),
   );
 
   $form['entity_meta'] = array(
@@ -58,7 +64,7 @@ function datalayer_settings_form($form_state) {
     '#collapsed' => TRUE,
     '#description' => t('The meta data details to ouput for client-side consumption. Marking none will output everything available.'),
   );
-  $form['entity_meta']['datalayer_entity_meta'] = array(
+  $form['entity_meta']['datalayer_global_entity_meta'] = array(
     '#type' => 'checkboxes',
     '#states' => array(
       'enabled' => array(
@@ -66,7 +72,7 @@ function datalayer_settings_form($form_state) {
       ),
     ),
     '#title' => '',
-    '#default_value' => variable_get('datalayer_entity_meta', 0),
+    '#default_value' => variable_get('datalayer_global_entity_meta', 0),
     '#options' => drupal_map_assoc($meta_data),
   );
 

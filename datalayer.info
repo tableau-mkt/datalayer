@@ -5,10 +5,4 @@ package = Other
 core = 7.x
 
 files[] = tests/datalayer_test.test
-
-; Information added by Drupal.org packaging script on 2014-07-03
-version = "7.x-1.0-beta1"
-core = "7.x"
-project = "datalayer"
-datestamp = "1404351230"
-
+dependencies[] = libraries

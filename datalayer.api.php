@@ -18,7 +18,7 @@
 /**
  * Provide candidate entity properties for output to the screen.
  */
-function hook_datalayer_output_meta() {
+function hook_datalayer_meta() {
   // EXAMPLE:
   // Add your own entity property to output.
   return array(
@@ -46,7 +46,7 @@ function hook_datalayer_meta_alter($properties) {
  * @param array $data_layer
  *   GTM data layer data for the current page.
  */
-function hook_datalayer_dl_alter(&$data_layer) {
+function hook_datalayer_alter(&$data_layer) {
   // EXAMPLE:
   // Set the "site" variable to return in lowercase.
   $data_layer['site'] = strtolower($data_layer['site']);

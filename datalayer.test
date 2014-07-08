@@ -63,7 +63,7 @@ class DataLayerTests extends DrupalWebTestCase {
       'datalayer_add_page_meta' => 1,
       'datalayer_output_terms' => 1,
       'datalayer_services_google' => 1,
-      'datalayer_entity_meta[]' => array(
+      'datalayer_global_entity_meta[]' => array(
         'entityType',
         'bundle',
         'nid',
