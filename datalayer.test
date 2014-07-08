@@ -36,10 +36,10 @@ class DataLayerTests extends DrupalWebTestCase {
 
     $this->verbose("Need a node with terms");
     //https://api.drupal.org/api/drupal/modules!node!node.test/function/NodeWebTestCase%3A%3AsetUp/7
-      // Tag node with terms.
-        // One tag in vocab_1. LATER: Confirm when not configured, doesn't output.
-        // Two tags in vocab_2. LATER: Affirm both output when configued.
-        // No tags in vocab_3. LATER: Confirm when not present doesn't ouptut.
+    // Tag node with terms.
+      // One tag in vocab_1. LATER: Confirm when not configured, doesn't output.
+      // Two tags in vocab_2. LATER: Affirm both output when configued.
+      // No tags in vocab_3. LATER: Confirm when not present doesn't ouptut.
 
     $settings = array(
       'type' => 'article',
@@ -95,42 +95,42 @@ class DataLayerTests extends DrupalWebTestCase {
    */
   public function dataLayerConfigOutput() {
 
-    /**
-     * Confirm output metadeta.
-     */
+  /**
+   * Confirm output metadeta.
+   */
 
-  	// Get page contents.
-  	$this->drupalGet('node/' . $nid);
-  	$this->drupalGetContent();
+  // Get page contents.
+  $this->drupalGet('node/' . $nid);
+  $this->drupalGetContent();
 
-  	// Check node.
-  		// Entity Meta Data.
-  		$this->verbose("Check entity meta data on node.");
-	  		// yes: entity type.
-	  		// yes: bundle.
-	  		// yes: nid type.
-	  		// yes: language type.
-	  		// yes: name.
-	  		// NO: uid.
-   		// Vocabularies.
-   		$this->verbose("Check vocabulary meta data on node.");
-		  	// One tag from vocab_1.
-		  	// Not second tag from vocab_1.
-		    // Both tags from vocab_2.
-		    // No tags from vocab_3.
+  // Check node.
+    // Entity Meta Data.
+    $this->verbose("Check entity meta data on node.");
+      // yes: entity type.
+      // yes: bundle.
+      // yes: nid type.
+      // yes: language type.
+      // yes: name.
+      // NO: uid.
+    // Vocabularies.
+    $this->verbose("Check vocabulary meta data on node.");
+      // One tag from vocab_1.
+      // Not second tag from vocab_1.
+      // Both tags from vocab_2.
+      // No tags from vocab_3.
 
-  	// Check taxonomy term.
-  		// Entity Meta Data.
-  		$this->verbose("Check entity meta data on taxonomy term.");
-	  		// yes: entity type.
-	  		// yes: bundle.
-	  		// yes: nid type.
-	  		// yes: language type.
-	  		// yes: name.
-	  		// NO: uid.
-  		// Vocabularies.
-  		$this->verbose("Check that term is listed on taxonomy term.");
-  			// This term is listed.
+  // Check taxonomy term.
+    // Entity Meta Data.
+    $this->verbose("Check entity meta data on taxonomy term.");
+      // yes: entity type.
+      // yes: bundle.
+      // yes: nid type.
+      // yes: language type.
+      // yes: name.
+      // NO: uid.
+    // Vocabularies.
+    $this->verbose("Check that term is listed on taxonomy term.");
+      // This term is listed.
   }
 
 }

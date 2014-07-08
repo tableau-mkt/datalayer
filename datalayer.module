@@ -60,7 +60,7 @@ function datalayer_preprocess_html(&$variables) {
     drupal_add_html_head($render, 'datalayer_meta');
 
     // Include data-layer-helper library.
-    if (variable_get('datalayer_lib_helper', TRUE)) {
+    if (variable_get('datalayer_lib_helper', FALSE)) {
       if (function_exists('libraries_load') && libraries_load('data-layer-helper')) {
         // You have Libraries 2.0 and some other module registered this.
         // The test above will cause the load.
