@@ -42,11 +42,6 @@ function datalayer_settings_form($form_state) {
   );
   $form['global']['datalayer_lib_helper'] = array(
     '#type' => 'checkbox',
-    '#states' => array(
-      'enabled' => array(
-        ':input[name="datalayer_add_page_meta"]' => array('checked' => TRUE),
-      ),
-    ),
     '#title' => t('Include "data layer helper" library'),
     '#default_value' => variable_get('datalayer_lib_helper', FALSE),
     '#description' => t('Provides the ability to process messages passed to the dataLayer. See: !link on GitHub.',
