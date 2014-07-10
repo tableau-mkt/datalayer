@@ -121,12 +121,10 @@ function _datalayer_collect_meta_properties() {
   $properties = &drupal_static(__FUNCTION__);
   if (!isset($properties)) {
 
-    $properties = array('entityType', 'bundle');
+    $properties = array();
     foreach (module_implements('datalayer_meta') as $module) {
       // Call modules implementing datalayer_meta() and combine results.
-      $properties = array_merge($properties,
-        module_invoke($module, 'datalayer_meta')
-      );
+      $properties = module_invoke($module, 'datalayer_meta');
     }
     drupal_alter('datalayer_meta', $properties);
   }
@@ -142,11 +140,10 @@ function _datalayer_collect_meta_properties() {
  */
 function datalayer_datalayer_meta() {
   return array(
-    'title',
+    'entityType',
+    'bundle',
     'language',
-    'nid',
     'tnid',
-    'tid',
     'vid',
     'name',
     'uid',
@@ -171,9 +168,24 @@ function _datalayer_get_entity_data($obj, $type) {
   $output_data = &drupal_static(__FUNCTION__);
   if (empty($output_data)) {
 
-    // Explicit additions.
-    $output_data['entityType'] = $type;
-    $output_data['entityBundle'] = (isset($obj->type)) ? $obj->type : FALSE;
+    // Explicit additions and generalized properties...
+    $entity_info = entity_get_info($type);
+    $output_data = array(
+      'entityType' => $type,
+      'entityId' => $obj->{$entity_info['entity keys']['id']},
+    );
+    // Generalized title.
+    if (isset($entity_info['entity keys']['label'])) {
+      $output_data['entityLabel'] = $obj->{$entity_info['entity keys']['label']};
+    }
+    elseif ($type == 'user') {
+      // User entities don't report a label.
+      $output_data['entityLabel'] = $obj->name;
+    }
+    // Add the bundle.
+    if (isset($obj->type)) {
+      $output_data['entityBundle'] = $obj->type;
+    }
 
     // Output various entity properties. Allow additions/alterations.
     // NOTE: Properties mean different things on different entity types.

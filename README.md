@@ -17,8 +17,8 @@ It's critial to have easy and reliable JS access to the meta data about the page
   "drupalLanguage": "en",
   "userStatus": "anonymous",
   "userUid": "555",
-  "entityNid" : "123",
-  "entityTitle" : "My Cool Page",
+  "entityId" : "123",
+  "entityLabel" : "My Cool Page",
   "entityType" : "node",
   "entityBundle" : "article",
   "entityUid" : "555",
@@ -103,7 +103,7 @@ You can also directly alter output bound data with the `hook_datalayer_alter()` 
 function my_module_datalayer_alter(&$data_layer) {
   // Make the title lowercase on some node type.
   if (isset($data_layer['entityBundle']) && $data_layer['entityBundle'] == 'mytype') {
-    $data_layer['entityTitle'] = strtolower($data_layer['entityTitle']);
+    $data_layer['entityLabel'] = strtolower($data_layer['entityLabel']);
   }
 }
 ```
@@ -123,7 +123,7 @@ You might act on this info like this...
       doMyThing(
         myHelper.get('entityUid'),
         myHelper.get('drupalLanguage'),
-        myHelper.get('entityTitle')
+        myHelper.get('entityLabel')
       );
     }
 
