@@ -76,7 +76,7 @@ function datalayer_settings_form($form_state) {
     '#title' => t('Vocabularies'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
-    '#description' => t('The vocabularies which should be output within page meta data.'),
+    '#description' => t('The vocabularies which should be output within page meta data. Marking none will output everything available.'),
   );
   $form['vocabs']['datalayer_vocabs'] = array(
     '#type' => 'checkboxes',
