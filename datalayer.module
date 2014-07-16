@@ -298,15 +298,19 @@ function _datalayer_menu_get_any_object(&$return_type) {
   // Figure out how this entity is loaded.
   $type = FALSE;
   $item = menu_get_item();
-  $vals = array_values($item['load_functions']);
-  $load_function = $vals[0];
-  $arg_position = array_search($load_function, $item['load_functions']);
 
-  // Compare to entity types.
-  $entity_info = entity_get_info();
-  foreach ($entity_info as $i => $e) {
-    if ($e['load hook'] == $load_function) {
-      $type = $i;
+  // Non-entities may not have load functions.
+  if (is_array($item['load_functions'])) {
+    $vals = array_values($item['load_functions']);
+    $load_function = $vals[0];
+    $arg_position = array_search($load_function, $item['load_functions']);
+
+    // Compare to entity types.
+    $entity_info = entity_get_info();
+    foreach ($entity_info as $i => $e) {
+      if ($e['load hook'] == $load_function) {
+        $type = $i;
+      }
     }
   }
 
