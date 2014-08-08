@@ -140,8 +140,6 @@ function _datalayer_collect_meta_properties() {
  */
 function datalayer_datalayer_meta() {
   return array(
-    'entityType',
-    'bundle',
     'language',
     'tnid',
     'vid',
@@ -170,21 +168,26 @@ function _datalayer_get_entity_data($obj, $type) {
 
     // Explicit additions and generalized properties...
     $entity_info = entity_get_info($type);
-    $output_data = array(
-      'entityType' => $type,
-      'entityId' => $obj->{$entity_info['entity keys']['id']},
-    );
-    // Generalized title.
+    $bundle = FALSE;
+
+    // Entity type.
+    $output_data['entityType'] = $type;
+    // Entity bundle.
+    if (isset($obj->{$entity_info['entity keys']['bundle']})) {
+      $bundle = $obj->{$entity_info['entity keys']['bundle']};
+      $output_data['entityBundle'] = $bundle;
+    }
+    // Entity indetifier.
+    if (isset($obj->{$entity_info['entity keys']['id']})) {
+      $output_data['entityId'] = $obj->{$entity_info['entity keys']['id']};
+    }
+    // Entity title.
     if (isset($entity_info['entity keys']['label'])) {
       $output_data['entityLabel'] = $obj->{$entity_info['entity keys']['label']};
     }
-    elseif ($type == 'user') {
+    elseif ($entity_info['label'] === 'User') {
       // User entities don't report a label.
       $output_data['entityLabel'] = $obj->name;
-    }
-    // Add the bundle.
-    if (isset($obj->type)) {
-      $output_data['entityBundle'] = $obj->type;
     }
 
     // Output various entity properties. Allow additions/alterations.
@@ -221,7 +224,7 @@ function _datalayer_get_entity_data($obj, $type) {
       else {
 
         // Meta data on content.
-        if ($taxonomy = _datalayer_get_entity_terms($type, $obj->type, $obj)) {
+        if ($taxonomy = _datalayer_get_entity_terms($type, $bundle, $obj)) {
           // Limit configured vocabs.
           if (empty($selected_vocabs)) {
             $output_data['entityTaxonomy'] = $taxonomy;
