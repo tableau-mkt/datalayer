@@ -124,6 +124,18 @@ if (typeof myVocab !== 'undefined' && myVocab.hasOwnProperty(specialTagTid)) {
 }
 ```
 
+## Language utilities
+If your project is multilingual this module provides several useful client-side tools...
+```
+Drupal.settings.dataLayer.languages;
+```
+Returns objects of your active langauges with full-details such as: prefix, native text, enabled, domain, name, etc.
+
+```
+Drupal.behaviors.dataLayer.langPrefixes();
+```
+Returns an array of your active language prefix codes, excluding any taht are left empty.
+
 ## Dynamic additions
 You can add new data to the data layer dynamically. This is how GA does it, you should follow those patterns.
 ```javascript
