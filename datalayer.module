@@ -208,7 +208,7 @@ function _datalayer_get_entity_data($obj, $type) {
     else {
       // Include only entity valid and config selected.
       foreach ($properties as $p) {
-        if (isset($obj->$p) && $selected_properties[$p]) {
+        if (isset($obj->$p) && isset($selected_properties[$p])) {
           $output_data['entity' . ucfirst($p)] = $obj->$p;
         }
       }
@@ -360,14 +360,19 @@ function _datalayer_get_entity_terms($entity_type, $bundle, $entity) {
     if (array_key_exists($entity_type, $field_info['bundles'])) {
       if (in_array($bundle, $field_info['bundles'][$entity_type])) {
         if (isset($entity->{$field_name})) {
+
           // Collect terms from fields for return.
           $values = field_get_items($entity_type, $entity, $field_name);
           foreach ((array) $values as $term_array) {
             // Limit to existant tids.
-            if (isset($term_array['tid']) && $term = taxonomy_term_load($term_array['tid'])) {
-              $terms[$term->vocabulary_machine_name][$term->tid] = $term->name;
+            if (isset($term_array['tid'])) {
+              $term = taxonomy_term_load($term_array['tid']);
+              if (isset($term->tid) && isset($term->name)) {
+                $terms[$term->vocabulary_machine_name][$term->tid] = $term->name;
+              }
             }
           }
+
         }
       }
     }
