@@ -112,15 +112,13 @@ function my_module_datalayer_alter(&$data_layer) {
 There are lots of great client-side uses for your pages' data. The `dataLayer` object is used as a warehouse for Google Analytics and GTM, and is therefor an array of objects. To safely access properties you should use the <a href="#data-layer-helper">data-layer-helper</a> library, a dependency of this module.
 You might act on this info like this...
 ```javascript
-var myVocab = Drupal.dlHelper.get('entityTaxonomy.my_category'),
-    specialTagTid = 25,
-    uid = Drupal.dlHelper.get('entityUid'),
-    lang = Drupal.dlHelper.get('drupalLanguage'),
-    title = Drupal.dlHelper.get('entityLabel');
+var myHelper = new DataLayerHelper(dataLayer),
+    myVocab = myHelper.get('entityTaxonomy.my_category'),
+    specialTagTid = 25;
 
 // Check for some term tag bring present.
 if (typeof myVocab !== 'undefined' && myVocab.hasOwnProperty(specialTagTid)) {
-  doMyThing(uid, lang, title);
+  doMyThing(myHelper.get('entityUid'), myHelper.get('drupalLanguage'), myHelper.get('entityLabel'));
 }
 ```
 

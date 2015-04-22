@@ -29,16 +29,7 @@
     /**
      * Drupal behavior.
      */
-    attach: function(context) {
-
-      // Prevent AJAX.
-      if (context !== document) return;
-
-      // If included, generalize dataLayer helper.
-      if (typeof DataLayerHelper === 'function') {
-        Drupal.dlHelper = new DataLayerHelper(dataLayer);
-      }
-    }
+    attach: function() { return }
 
   };
 })(jQuery);
