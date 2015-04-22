@@ -57,6 +57,7 @@ function datalayer_libraries_info() {
  */
 function datalayer_preprocess_html(&$variables) {
   $output_data = array();
+  $languages = language_list();
 
   // Add details about the entity page.
   if (variable_get('datalayer_add_page_meta', TRUE)) {
@@ -107,6 +108,13 @@ function datalayer_preprocess_html(&$variables) {
     }
   }
 
+  // Output configred language data.
+  if (count($languages)) {
+    drupal_add_js(array('dataLayer' => array('languages' => $languages)), 'setting');
+  }
+
+  // Common datalayer JS.
+  drupal_add_js(drupal_get_path('module', 'datalayer') . '/datalayer.js');
 }
 
 
