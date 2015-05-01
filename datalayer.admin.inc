@@ -54,9 +54,9 @@ function datalayer_settings_form($form_state) {
 
   $form['entity_meta'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Meta data'),
+    '#title' => t('Entity meta data'),
     '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
+    '#collapsed' => FALSE,
     '#description' => t('The meta data details to ouput for client-side consumption. Marking none will output everything available.'),
   );
   $form['entity_meta']['datalayer_global_entity_meta'] = array(
@@ -73,9 +73,9 @@ function datalayer_settings_form($form_state) {
 
   $form['vocabs'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Vocabularies'),
+    '#title' => t('Taxonomy'),
     '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
+    '#collapsed' => FALSE,
     '#description' => t('The vocabularies which should be output within page meta data. Marking none will output everything available.'),
   );
   $form['vocabs']['datalayer_vocabs'] = array(
@@ -88,6 +88,28 @@ function datalayer_settings_form($form_state) {
     '#title' => '',
     '#default_value' => variable_get('datalayer_vocabs', 0),
     '#options' => $v_options,
+  );
+
+  $form['user'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('User Details'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#description' => t('Details about the current user can be output to the dataLayer.'),
+  );
+  $form['user']['datalayer_expose_user_details'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Expose user details'),
+    '#default_value' => variable_get('datalayer_expose_user_details', array()),
+    '#description' => t('Pages that should expose active user details to the dataLayer. Leaving empty will expose nothing.'),
+  );
+  $form['user']['datalayer_expose_user_details_roles'] = array(
+    '#type' => 'checkboxes',
+    '#options' => user_roles(TRUE),
+    '#multiple' => TRUE,
+    '#title' => t('Expose user roles'),
+    '#default_value' => variable_get('datalayer_expose_user_details_roles', array()),
+    '#description' => t('Roles that should expose active user details to the dataLayer. Leaving empty will expose to all roles.'),
   );
 
   return system_settings_form($form);

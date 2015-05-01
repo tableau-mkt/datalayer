@@ -53,25 +53,53 @@ function datalayer_libraries_info() {
 /**
  * Implements hook_preprocess_HOOK().
  *
- * Outputs meta data details of the page.
+ * Add data for output.
  */
-function datalayer_preprocess_html(&$variables) {
-  $output_data = array();
-  $languages = language_list();
+function datalayer_preprocess_page(&$variables) {
+  global $user;
 
-  // Add details about the entity page.
+  // Add details about the page entity.
+  $page_entity_data = array();
   if (variable_get('datalayer_add_page_meta', TRUE)) {
     $type = FALSE;
     $obj = _datalayer_menu_get_any_object($type);
     if (is_object($obj) && $type) {
       // Populate entity properties and values.
-      $output_data = _datalayer_get_entity_data($obj, $type);
+      datalayer_add(_datalayer_get_entity_data($obj, $type));
     }
   }
 
-  // Merge with datalayer_add(), includes defaults.
-  $output_data = array_merge($output_data, datalayer_add());
+  // Expose user details (on configured URL patterns).
+  $expUserUrls = variable_get('datalayer_expose_user_details', array());
+  $expUserRoles = array_filter(variable_get('datalayer_expose_user_details_roles', array()));
+  $matchedRoles = array_intersect(array_keys($user->roles), $expUserRoles);
+  if ($expUserUrls && (count($expUserRoles) == 0 || count($matchedRoles))) {
+    $path = current_path();
+    $path_alias = drupal_lookup_path('alias', $path);
+    if (drupal_match_path($path, $expUserUrls) || drupal_match_path($path_alias, $expUserUrls)) {
+      datalayer_add(array(
+        'userName' => $user->name,
+        'userMail' => $user->mail,
+        'userRoles' => $user->roles,
+        'userCreated' => $user->created,
+        'userAccess' => $user->access,
+      ));
+    }
+  }
 
+  // Always output active uid.
+  datalayer_add(array('userUid' => $user->uid));
+}
+
+
+/**
+ * Implements hook_preprocess_HOOK().
+ *
+ * Outputs data inclusions for the page.
+ */
+function datalayer_preprocess_html(&$variables) {
+  // Get active data, includes defaults.
+  $output_data = datalayer_add();
   // Allow modules to alter data with hook_datalayer_alter().
   drupal_alter('datalayer', $output_data);
 
@@ -109,6 +137,7 @@ function datalayer_preprocess_html(&$variables) {
   }
 
   // Output configred language data.
+  $languages = language_list();
   if (count($languages)) {
     drupal_add_js(array('dataLayer' => array('languages' => $languages)), 'setting');
   }
@@ -260,10 +289,12 @@ function _datalayer_get_entity_data($obj, $type) {
 /**
  * Allow adding to the data layer easy on the fly, similar to drupal_add_js().
  *
+ * Passing empty params will return current dataLayer output.
+ *
  * @param array $data
- *   An array of dataLayer data keyed by variable name.
+ *   An array of dataLayer data keyed by variable name (optional).
  * @param bool $overwrite
- *   If data should overwrite existing dataLayer vars of same name.
+ *   If data should overwrite existing dataLayer vars of same name (optional).
  *
  * @return array
  *   All data layer data added thus far.
@@ -293,7 +324,6 @@ function _datalayer_defaults() {
 
   return array(
     'drupalLanguage' => $language->language,
-    'userUid' => $user->uid,
   );
 }
 
