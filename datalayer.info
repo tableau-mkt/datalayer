@@ -4,5 +4,6 @@ dependencies[] = libraries
 package = Other
 core = 7.x
 
-files[] = tests/datalayer_test.test
-dependencies[] = libraries
+; Tests
+files[] = tests/datalayer.unit.test
+files[] = tests/datalayer.web.test
