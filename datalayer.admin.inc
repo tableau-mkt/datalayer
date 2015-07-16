@@ -45,11 +45,14 @@ function datalayer_settings_form($form_state) {
     '#title' => t('Include "data layer helper" library'),
     '#default_value' => variable_get('datalayer_lib_helper', FALSE),
     '#description' => t('Provides the ability to process messages passed to the dataLayer. See: !link on GitHub.',
-      array('!link' => l('data-layer-helper',
-        'https://github.com/google/data-layer-helper',
-        array('external' => TRUE, 'attributes' => array('target' => '_blank'))
+      array(
+        '!link' => l(
+          t('data-layer-helper'),
+          'https://github.com/google/data-layer-helper',
+          array('external' => TRUE, 'attributes' => array('target' => '_blank'))
+        ),
       )
-    )),
+    ),
   );
 
   $form['entity_meta'] = array(
