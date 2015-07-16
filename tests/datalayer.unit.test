@@ -18,6 +18,14 @@ class DataLayerUnitTests extends DrupalUnitTestCase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    drupal_load('module', 'datalayer');
+    parent::setUp();
+  }
+
+  /**
    * Test DataLayer Defaults function.
    */
   public function testDataLayerDefaults() {
@@ -317,13 +325,6 @@ class DataLayerUnitTests extends DrupalUnitTestCase {
       'entityBundle' => 'article',
       'entityId' => 1,
       'entityLabel' => 'My Article',
-      'entityLanguage' => 'und',
-      'entityTnid' => 0,
-      'entityVid' => 1,
-      'entityName' => 'admin',
-      'entityUid' => 1,
-      'entityCreated' => '1435019805',
-      'entityStatus' => 1,
       'entityTaxonomy' => array(
         'tags' => array(
           1 => 'someTag',
