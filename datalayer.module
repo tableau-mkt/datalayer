@@ -70,20 +70,22 @@ function datalayer_preprocess_page(&$variables) {
   }
 
   // Expose user details (on configured URL patterns).
-  $exp_user_urls = variable_get('datalayer_expose_user_details', array());
-  $exp_user_roles = array_filter(variable_get('datalayer_expose_user_details_roles', array()));
-  $matched_roles = array_intersect(array_keys($user->roles), $exp_user_roles);
-  if ($exp_user_urls && (count($exp_user_roles) == 0 || count($matched_roles))) {
-    $path = current_path();
-    $path_alias = drupal_lookup_path('alias', $path);
-    if (drupal_match_path($path, $exp_user_urls) || drupal_match_path($path_alias, $exp_user_urls)) {
-      datalayer_add(array(
-        'userName' => $user->name,
-        'userMail' => $user->mail,
-        'userRoles' => $user->roles,
-        'userCreated' => $user->created,
-        'userAccess' => $user->access,
-      ));
+  if (!user_is_anonymous()) {
+    $exp_user_urls = variable_get('datalayer_expose_user_details', array());
+    $exp_user_roles = array_filter(variable_get('datalayer_expose_user_details_roles', array()));
+    $matched_roles = array_intersect(array_keys($user->roles), $exp_user_roles);
+    if ($exp_user_urls && (count($exp_user_roles) == 0 || count($matched_roles))) {
+      $path = current_path();
+      $path_alias = drupal_lookup_path('alias', $path);
+      if (drupal_match_path($path, $exp_user_urls) || drupal_match_path($path_alias, $exp_user_urls)) {
+        datalayer_add(array(
+          'userName' => $user->name,
+          'userMail' => $user->mail,
+          'userRoles' => $user->roles,
+          'userCreated' => $user->created,
+          'userAccess' => $user->access,
+        ));
+      }
     }
   }
 
