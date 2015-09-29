@@ -221,7 +221,7 @@ function _datalayer_get_entity_data($obj, $type) {
       $output_data['entityId'] = $obj->{$entity_info['entity keys']['id']};
     }
     // Entity title.
-    if (isset($entity_info['entity keys']['label'])) {
+    if (isset($entity_info['entity keys']['label']) && isset($obj->{$entity_info['entity keys']['label']})) {
       $output_data['entityLabel'] = $obj->{$entity_info['entity keys']['label']};
     }
     elseif ($entity_info['label'] === 'User') {
