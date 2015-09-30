@@ -163,7 +163,7 @@ function _datalayer_collect_meta_properties() {
     $properties = array();
     foreach (module_implements('datalayer_meta') as $module) {
       // Call modules implementing datalayer_meta() and combine results.
-      $properties = module_invoke($module, 'datalayer_meta');
+      $properties = array_merge($properties, module_invoke($module, 'datalayer_meta'));
     }
     drupal_alter('datalayer_meta', $properties);
   }
