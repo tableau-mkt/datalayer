@@ -323,9 +323,11 @@ function datalayer_add($data = array(), $overwrite = FALSE) {
  */
 function _datalayer_defaults() {
   global $language, $user;
+  $country = variable_get('site_default_country', '');
 
   return array(
     'drupalLanguage' => $language->language,
+    'drupalCountry' => $country,
   );
 }
 
