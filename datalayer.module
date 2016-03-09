@@ -68,6 +68,7 @@ function datalayer_preprocess_page(&$variables) {
     $exp_user_urls = variable_get('datalayer_expose_user_details', array());
     $exp_user_roles = array_filter(variable_get('datalayer_expose_user_details_roles', array()));
     $matched_roles = array_intersect(array_keys($user->roles), $exp_user_roles);
+    // Honor settings.
     if ($exp_user_urls && (count($exp_user_roles) == 0 || count($matched_roles))) {
       $path = current_path();
       $path_alias = drupal_lookup_path('alias', $path);
