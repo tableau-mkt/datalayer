@@ -8,15 +8,11 @@
  * Implements hook_uninstall().
  */
 function datalayer_uninstall() {
-  $variables = array(
-    'datalayer_add_page_meta',
-    'datalayer_lib_helper',
-    'datalayer_output_terms',
-    'datalayer_global_entity_meta',
-    'datalayer_vocabs',
-  );
-
-  foreach ($variables as $variable) {
-    variable_del($variable);
+  // Remove all configurations.
+  global $conf;
+  foreach($conf as $key => $value) {
+    if (0 === strpos($key, 'datalayer_')) {
+      variable_del($conf[$key]);
+    }
   }
 }

@@ -59,14 +59,8 @@ function datalayer_preprocess_page(&$variables) {
   global $user;
 
   // Add details about the page entity.
-  $page_entity_data = array();
   if (variable_get('datalayer_add_page_meta', TRUE)) {
-    $type = FALSE;
-    $obj = _datalayer_menu_get_any_object($type);
-    if (is_object($obj) && $type) {
-      // Populate entity properties and values.
-      datalayer_add(_datalayer_get_entity_data($obj, $type));
-    }
+    datalayer_add(datalayer_get_page_data());
   }
 
   // Expose user details (on configured URL patterns).
@@ -141,7 +135,10 @@ function datalayer_preprocess_html(&$variables) {
   // Output configred language data.
   $languages = language_list();
   if (count($languages)) {
-    drupal_add_js(array('dataLayer' => array('languages' => $languages)), 'setting');
+    drupal_add_js(array('dataLayer' => array(
+      'languages' => $languages,
+      'defaultLang' => language_default('language'),
+    )), 'setting');
   }
 
   // Common datalayer JS.
@@ -191,6 +188,23 @@ function datalayer_datalayer_meta() {
 
 
 /**
+ * Return all the page meta data.
+ *
+ * @return array
+ */
+function datalayer_get_page_data() {
+  $type = FALSE;
+  $obj = _datalayer_menu_get_any_object($type);
+  if (is_object($obj) && $type) {
+    // @todo Add field data.
+    // Populate entity properties and values.
+    return _datalayer_get_entity_data($obj, $type);
+  }
+  return array();
+}
+
+
+/**
  * Collect entity data for output and altering.
  *
  * @param object $obj
@@ -221,7 +235,9 @@ function _datalayer_get_entity_data($obj, $type) {
       $output_data['entityId'] = $obj->{$entity_info['entity keys']['id']};
     }
     // Entity title.
-    if (isset($entity_info['entity keys']['label']) && isset($obj->{$entity_info['entity keys']['label']})) {
+    if (isset($entity_info['entity keys']) && isset($entity_info['entity keys']['label']) &&
+        isset($obj->{$entity_info['entity keys']['label']})) {
+
       $output_data['entityLabel'] = $obj->{$entity_info['entity keys']['label']};
     }
     elseif ($entity_info['label'] === 'User') {
@@ -322,10 +338,10 @@ function datalayer_add($data = array(), $overwrite = FALSE) {
  * Defines Drupal-wide data layer defaults.
  */
 function _datalayer_defaults() {
-  global $language, $user;
-
+  global $language;
   return array(
     'drupalLanguage' => $language->language,
+    'drupalCountry' => variable_get('site_default_country', ''),
   );
 }
 
