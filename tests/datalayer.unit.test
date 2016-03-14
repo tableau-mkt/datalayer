@@ -31,7 +31,7 @@ class DataLayerUnitTests extends DrupalUnitTestCase {
   public function testDataLayerDefaults() {
     $this->setupMockLanguage();
     $this->assertEqual(
-      array('drupalLanguage' => 'en-us', 'drupalCountry' => 'US'),
+      array('drupalLanguage' => 'en-us'),
       _datalayer_defaults()
     );
   }
@@ -325,13 +325,6 @@ class DataLayerUnitTests extends DrupalUnitTestCase {
       'entityBundle' => 'article',
       'entityId' => 1,
       'entityLabel' => 'My Article',
-      'entityLanguage' => 'und',
-      'entityTnid' => 0,
-      'entityVid' => 1,
-      'entityName' => 'admin',
-      'entityUid' => 1,
-      'entityCreated' => '1435019805',
-      'entityStatus' => 1,
       'entityTaxonomy' => array(
         'tags' => array(
           1 => 'someTag',
