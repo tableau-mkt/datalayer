@@ -65,10 +65,13 @@ class DatalayerSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   protected function labelReplacementsFromArray($replacements) {
-    foreach ($replacements as $label => $replacement) {
-      $display .= $label . "|" . $replacement . "\r\n";
+    $display = '';
+    if (!is_null($replacements)) {
+      foreach ($replacements as $label => $replacement) {
+        $display .= $label . "|" . $replacement . "\r\n";
+      }
+      return $display;
     }
-    return $display;
   }
 
   /**

@@ -58,4 +58,4 @@ datalayer.settings:
       type: string
     label_replacements:
       label: 'Exposed field sub label replacements'
-      type: string
+      type: sequence

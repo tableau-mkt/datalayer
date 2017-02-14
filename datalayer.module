@@ -494,8 +494,11 @@ function _datalayer_get_field_values($entity) {
         }
       } else {
         foreach ($entity->{$field_name} as $field_item) {
-          foreach (_datalayer_field_get_value($field_item, $field_type) as $key => $value) {
-            $fields[$key] = $value;
+          $subitems = _datalayer_field_get_value($field_item, $field_type);
+          if (!is_null($subitems)) {
+            foreach ($subitems as $key => $value) {
+              $fields[$key] = $value;
+            }
           }
         }
       }
@@ -517,6 +520,7 @@ function _datalayer_get_field_values($entity) {
  *   Numeric array of values.
  */
 function _datalayer_field_get_value($field_item, $field_type) {
+  $value = array();
   switch ($field_type) {
     case 'entity_reference':
       $value = $field_item->getValue() + ['target_name' => $field_item->entity->name->getString()];
