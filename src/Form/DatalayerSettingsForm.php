@@ -46,6 +46,12 @@ class DatalayerSettingsForm extends ConfigFormBase {
       ->set('label_replacements', $this->labelReplacementsToArray($form_state->getValue('label_replacements')))
       ->save();
 
+    if (\Drupal::moduleHandler()->moduleExists('group')) {
+      $config->set('group', $form_state->getValue('group'))
+        ->set('group_label', $form_state->getValue('group_label'))
+        ->save();
+    }
+
     parent::submitForm($form, $form_state);
   }
 
@@ -130,6 +136,14 @@ class DatalayerSettingsForm extends ConfigFormBase {
         ':helper' => 'https://github.com/google/data-layer-helper'
       ]),
     ];
+    if (\Drupal::moduleHandler()->moduleExists('group')) {
+      $form['global']['group'] = [
+        '#type' => 'checkbox',
+        '#title' => t('Group module support'),
+        '#default_value' => $datalayer_settings->get('group'),
+        '#description' => t('Output the group entities on pages beloging to a group.'),
+      ];
+    }
 
     $form['entity_meta'] = [
       '#type' => 'fieldset',
@@ -269,6 +283,17 @@ class DatalayerSettingsForm extends ConfigFormBase {
       '#default_value' => isset($drupalCountry) ? $drupalCountry : 'drupalCountry',
       '#description' => t('Label for the country of the Drupal site'),
     ];
+
+    if (\Drupal::moduleHandler()->moduleExists('group')) {
+      // Group label.
+      $groupLabel = $datalayer_settings->get('group_label');
+      $form['output']['group_label'] = [
+        '#type' => 'textfield',
+        '#title' => t('Group label'),
+        '#default_value' => isset($groupLabel) ? $groupLabel : 'groupLabel',
+        '#description' => t('Label for the group label'),
+      ];
+    }
 
     // Site name.
     $drupalSitename = $datalayer_settings->get('site_name');

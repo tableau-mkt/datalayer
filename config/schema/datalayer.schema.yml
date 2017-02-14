@@ -32,6 +32,9 @@ datalayer.settings:
       type: sequence
       sequence:
         type: string
+    group:
+      label: 'Include group support'
+      type: boolean
     expose_user_details_fields:
       label: 'Include enabled user field values'
       type: boolean
@@ -46,6 +49,9 @@ datalayer.settings:
       type: string
     entity_identifier:
       label: 'Label for the identifier of the entity'
+      type: string
+    group_label:
+      label: 'Label for the group label value'
       type: string
     drupal_language:
       label: 'Label for the language of the Drupal site'

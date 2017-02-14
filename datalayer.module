@@ -11,6 +11,8 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Field\FormatterInterface;
 Use Drupal\taxonomy\Entity\Term;
 use Drupal\Component\Serialization\Json;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\group\Entity\GroupContentType;
 
 /**
  * Implements hook_menu().
@@ -298,7 +300,6 @@ function _datalayer_get_entity_data($entity) {
       $output_data[$datalayer_settings->get('entity_title')] = $entity->name->getString();
     }
 
-
     // Output various entity properties. Allow additions/alterations.
     // NOTE: Properties mean different things on different entity types.
     $properties = _datalayer_collect_meta_properties();
@@ -328,6 +329,14 @@ function _datalayer_get_entity_data($entity) {
     if ((empty($selected_properties) || array_key_exists('name', $properties))
       && !isset($output_data['entityName']) && is_object($entity->uid)) {
       $output_data['entityName'] = $entity->uid->entity->name->getString();
+    }
+
+    // Output group name.
+    if ($datalayer_settings->get('group')) {
+      if (\Drupal::moduleHandler()->moduleExists('group')) {
+        $groupName = getEntityGroup($entity)->label();
+        $output_data[$datalayer_settings->get('group_label')] = $groupName;
+      }
     }
 
     // Output field data.
@@ -552,4 +561,34 @@ function datalayer_google_tag_snippets_alter(&$snippets) {
   $data_layer = trim(json_encode($data_layer), '"');
   // concat the dataLayer module variable with the google_tag dataLayer array
   $snippets['data_layer'] = preg_replace("/($data_layer = )(\[.*?\])(;.*$)/", '$1dataLayer.concat($2)$3', $snippets['data_layer']);
+}
+
+/**
+ * Get the group of given entity.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ *   The entity.
+ *
+ * @return null|\Drupal\group\Entity\GroupInterface
+ *   Return the Group if found, else NULL.
+ */
+function getEntityGroup(EntityInterface $entity) {
+  // Load all the group content for this node.
+  $group_content_types = GroupContentType::loadByContentPluginId("group_node:{$entity->bundle()}");
+  $group_contents = \Drupal::entityTypeManager()
+    ->getStorage('group_content')
+    ->loadByProperties([
+      'type'      => array_keys($group_content_types),
+      'entity_id' => $entity->id(),
+    ]);
+
+  // Get this nodes group.
+  if (!empty($group_contents)) {
+    /** @var \Drupal\group\Entity\GroupContent $group_cotnent */
+    $group_content = reset($group_contents);
+    /** @var \Drupal\group\Entity\Group $group */
+    return $group_content->getGroup();
+  }
+
+  return NULL;
 }
