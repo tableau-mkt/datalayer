@@ -210,7 +210,7 @@ class DatalayerSettingsForm extends ConfigFormBase {
       '#title' => t('Data layer output Labels'),
       '#collapsible' => TRUE,
       '#collapsed' => FALSE,
-      '#description' => t('Define  labels used in the datalayer output, labels for field values are configurable from the field edit form.'),
+      '#description' => t('Define labels used in the datalayer output, labels for field values are configurable from the field edit form.'),
     ];
 
     // Entity title
@@ -219,7 +219,7 @@ class DatalayerSettingsForm extends ConfigFormBase {
       '#type' => 'textfield',
       '#title' => t('Entity title'),
       '#default_value' => isset($entityTitle) ? $entityTitle : 'entityLabel',
-      '#description' => t('The label for the title of the entity'),
+      '#description' => t('Label for the title of the entity'),
     ];
 
     // Entity type.
@@ -228,7 +228,7 @@ class DatalayerSettingsForm extends ConfigFormBase {
       '#type' => 'textfield',
       '#title' => t('Entity type'),
       '#default_value' => isset($entityType) ? $entityType : 'entityType',
-      '#description' => t('The label for the type of the entity'),
+      '#description' => t('Label for the type of the entity'),
     ];
 
     // Entity bundle.
@@ -237,7 +237,7 @@ class DatalayerSettingsForm extends ConfigFormBase {
       '#type' => 'textfield',
       '#title' => t('Entity bundle'),
       '#default_value' => isset($entityBundle) ? $entityBundle : 'entityBundle',
-      '#description' => t('The label for the bundle of the entity'),
+      '#description' => t('Label for the bundle of the entity'),
     ];
 
     // Entity indetifier.
@@ -246,7 +246,7 @@ class DatalayerSettingsForm extends ConfigFormBase {
       '#type' => 'textfield',
       '#title' => t('Entity identifier'),
       '#default_value' => isset($entityIdentifier) ? $entityIdentifier : 'entityIdentifier',
-      '#description' => t('The label for the identifier of the entity'),
+      '#description' => t('Label for the identifier of the entity'),
     ];
 
     // drupalLanguage.
@@ -255,7 +255,7 @@ class DatalayerSettingsForm extends ConfigFormBase {
       '#type' => 'textfield',
       '#title' => t('Drupal language'),
       '#default_value' => isset($drupalLanguage) ? $drupalLanguage : 'drupalLanguage',
-      '#description' => t('The label for the language of the Drupal site'),
+      '#description' => t('Label for the language of the Drupal site'),
     ];
 
     // drupalCountry.
@@ -264,7 +264,7 @@ class DatalayerSettingsForm extends ConfigFormBase {
       '#type' => 'textfield',
       '#title' => t('Drupal country'),
       '#default_value' => isset($drupalCountry) ? $drupalCountry : 'drupalCountry',
-      '#description' => t('The label for the country of the Drupal site'),
+      '#description' => t('Label for the country of the Drupal site'),
     ];
 
     // Site name.
@@ -273,7 +273,7 @@ class DatalayerSettingsForm extends ConfigFormBase {
       '#type' => 'textfield',
       '#title' => t('Drupal site name'),
       '#default_value' => isset($drupalSitename) ? $drupalSitename : 'drupalSitename',
-      '#description' => t('The label for the sitename value'),
+      '#description' => t('Label for the sitename value'),
     ];
 
     // find an replace.

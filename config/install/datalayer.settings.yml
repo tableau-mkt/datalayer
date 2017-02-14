@@ -7,3 +7,11 @@ vocabs: {  }
 expose_user_details: ''
 expose_user_details_roles: {  }
 expose_user_details_fields: false
+entity_title: ''
+entity_type: ''
+entity_bundle: ''
+entity_identifier: ''
+drupal_language: ''
+drupal_country: ''
+site_name: ''
+label_replacements: {  }

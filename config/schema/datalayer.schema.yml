@@ -35,4 +35,27 @@ datalayer.settings:
     expose_user_details_fields:
       label: 'Include enabled user field values'
       type: boolean
-
+    entity_title:
+      label: 'Label for the title of the entity'
+      type: string
+    entity_type:
+      label: 'Label for the type of the entity'
+      type: string
+    entity_bundle:
+      label: 'Label for the bundle of the entity'
+      type: string
+    entity_identifier:
+      label: 'Label for the identifier of the entity'
+      type: string
+    drupal_language:
+      label: 'Label for the language of the Drupal site'
+      type: string
+    drupal_country:
+      label: 'Label for the country of the Drupal site'
+      type: string
+    site_name:
+      label: 'Label for the sitename value'
+      type: string
+    label_replacements:
+      label: 'Exposed field sub label replacements'
+      type: string
