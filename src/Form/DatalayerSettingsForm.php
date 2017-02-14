@@ -53,7 +53,7 @@ class DatalayerSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   protected function labelReplacementsToArray($replacements) {
-    $labels = explode("\n", $replacements);
+    $labels = explode("\r\n", $replacements);
     foreach( $labels as $label ){
       $tmp = explode( '|', $label );
       $storage[ $tmp[0] ] = $tmp[1];
@@ -66,9 +66,9 @@ class DatalayerSettingsForm extends ConfigFormBase {
    */
   protected function labelReplacementsFromArray($replacements) {
     foreach ($replacements as $label => $replacement) {
-      $display .= $label . "|" . $replacement . "\n";
+      $display .= $label . "|" . $replacement . "\r\n";
     }
-    return array_pop($display);
+    return $display;
   }
 
   /**
@@ -282,7 +282,7 @@ class DatalayerSettingsForm extends ConfigFormBase {
       '#type' => 'textarea',
       '#title' => t('Exposed field sub label replacements'),
       '#default_value' => isset($labelReplacements) ? $this->labelReplacementsFromArray($labelReplacements) : '',
-      '#description' => t('For exposed fields with a sub array of field daya you can enter a replacement value for lables using the format: returned_value|replacement'),
+      '#description' => t('For exposed fields with a sub array of field daya you can enter a replacement value for labels using the format: returned_value|replacement'),
     ];
 
     return parent::buildForm($form, $form_state);
