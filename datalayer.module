@@ -43,6 +43,12 @@ function datalayer_form_field_config_form_alter(&$form, FormStateInterface $form
       '#default_value' => $field->getThirdPartySetting('datalayer', 'expose', 0),
       '#description' => t('Checking this box will result in this field being included in the dataLayer object.'),
     ];
+    $form['third_party_settings']['datalayer']['label'] = [
+      '#type' => 'textfield',
+      '#title' => t('DataLayer label'),
+      '#default_value' => $field->getThirdPartySetting('datalayer', 'label', $field->get('field_name')),
+      '#description' => t('Enter the label you would like in the datalayer output.'),
+    ];
   }
 }
 
@@ -270,12 +276,12 @@ function _datalayer_get_entity_data($entity) {
     $bundle = FALSE;
 
     // Entity type.
-    $output_data['entityType'] = $type;
+    $output_data[$datalayer_settings->get('entity_type')] = $type;
 
     // Entity bundle.
     if (isset($entity->{$entity_keys['bundle']})) {
       $bundle = $entity->{$entity_keys['bundle']}->getString();
-      $output_data['entityBundle'] = $bundle;
+      $output_data[$datalayer_settings->get('entity_bundle')] = $bundle;
     }
     // Entity indetifier.
     if (isset($entity->{$entity_keys['id']})) {
@@ -285,11 +291,11 @@ function _datalayer_get_entity_data($entity) {
     // Entity title.
     if (isset($entity_keys['label']) &&
         isset($entity->{$entity_keys['label']})) {
-      $output_data['entityLabel'] = $entity->{$entity_keys['label']}->getString();
+      $output_data[$datalayer_settings->get('entity_title')] = $entity->{$entity_keys['label']}->getString();
     }
     elseif ($entity_info->id() === 'user') {
       // User entities don't report a label.
-      $output_data['entityLabel'] = $entity->name->getString();
+      $output_data[$datalayer_settings->get('entity_title')] = $entity->name->getString();
     }
 
 
@@ -326,7 +332,14 @@ function _datalayer_get_entity_data($entity) {
 
     // Output field data.
     if ($datalayer_settings->get('output_fields')) {
-      $output_data['entityFields'] = _datalayer_get_field_values($entity);
+      $fields = _datalayer_get_field_values($entity);
+      $replacements = $datalayer_settings->get('label_replacements');
+      foreach ($fields as $key => $value) {
+        if (array_key_exists($key, $replacements)) {
+          $key = $replacements[$key];
+        }
+        $output_data[$key] = $value;
+      }
     }
 
     // Output term data.
@@ -394,11 +407,15 @@ function datalayer_add($data = array(), $overwrite = FALSE) {
  * Defines Drupal-wide data layer defaults.
  */
 function _datalayer_defaults() {
+  $datalayer_settings = \Drupal::config('datalayer.settings');
+
   $language = \Drupal::languageManager()->getDefaultLanguage();
   $site_config = \Drupal::config('system.date');
+  $site_name = \Drupal::config('system.site');
   return [
-    'drupalLanguage' => $language->getId(),
-    'drupalCountry' => $site_config->get('country.default'),
+    $datalayer_settings->get('drupal_language') => $language->getId(),
+    $datalayer_settings->get('drupal_country') => $site_config->get('country.default'),
+    $datalayer_settings->get('site_name') => $site_name->get('name'),
   ];
 }
 
@@ -470,9 +487,17 @@ function _datalayer_get_field_values($entity) {
     if (method_exists($field_info, 'getThirdPartySetting') &&
       $field_info->getThirdPartySetting('datalayer', 'expose', 0)) {
       $field_type = $field_info->getType();
-      $fields[$field_name] = [];
-      foreach ($entity->{$field_name} as $field_item) {
-        $fields[$field_name][] = _datalayer_field_get_value($field_item, $field_type);
+      if ($field_type != 'metatag') {
+        $fields[$field_info->getThirdPartySetting('datalayer', 'label')] = [];
+        foreach ($entity->{$field_name} as $field_item) {
+          $fields[$field_info->getThirdPartySetting('datalayer', 'label')] = _datalayer_field_get_value($field_item, $field_type);
+        }
+      } else {
+        foreach ($entity->{$field_name} as $field_item) {
+          foreach (_datalayer_field_get_value($field_item, $field_type) as $key => $value) {
+            $fields[$key] = $value;
+          }
+        }
       }
     }
   }
@@ -496,8 +521,18 @@ function _datalayer_field_get_value($field_item, $field_type) {
     case 'entity_reference':
       $value = $field_item->getValue() + ['target_name' => $field_item->entity->name->getString()];
       break;
+    case 'metatag':
+      $field = $field_item->getValue();
+      $values = unserialize($field['value']);
+      foreach ($values as $key => $thisvalue) {
+        $value[$key] = $thisvalue;
+      }
+      break;
     default:
       $value = $field_item->getValue();
+      if (count($value) == 1) {
+        $value = $value['value'];
+      }
       break;
   }
 

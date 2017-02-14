@@ -36,9 +36,39 @@ class DatalayerSettingsForm extends ConfigFormBase {
       ->set('expose_user_details', $form_state->getValue('expose_user_details'))
       ->set('expose_user_details_roles', $form_state->getValue('expose_user_details_roles'))
       ->set('expose_user_details_fields', $form_state->getValue('expose_user_details_fields'))
+      ->set('entity_title', $form_state->getValue('entity_title'))
+      ->set('entity_type', $form_state->getValue('entity_type'))
+      ->set('entity_bundle', $form_state->getValue('entity_bundle'))
+      ->set('entity_identifier', $form_state->getValue('entity_identifier'))
+      ->set('drupal_language', $form_state->getValue('drupal_language'))
+      ->set('drupal_country', $form_state->getValue('drupal_country'))
+      ->set('site_name', $form_state->getValue('site_name'))
+      ->set('label_replacements', $this->labelReplacementsToArray($form_state->getValue('label_replacements')))
       ->save();
 
     parent::submitForm($form, $form_state);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function labelReplacementsToArray($replacements) {
+    $labels = explode("\n", $replacements);
+    foreach( $labels as $label ){
+      $tmp = explode( '|', $label );
+      $storage[ $tmp[0] ] = $tmp[1];
+    }
+    return $storage;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function labelReplacementsFromArray($replacements) {
+    foreach ($replacements as $label => $replacement) {
+      $display .= $label . "|" . $replacement . "\n";
+    }
+    return array_pop($display);
   }
 
   /**
@@ -173,6 +203,86 @@ class DatalayerSettingsForm extends ConfigFormBase {
       '#type' => 'checkbox',
       '#title' => t('Include enabled user field values'),
       '#default_value' => $datalayer_settings->get('expose_user_details_fields'),
+    ];
+
+    $form['output'] = [
+      '#type' => 'fieldset',
+      '#title' => t('Data layer output Labels'),
+      '#collapsible' => TRUE,
+      '#collapsed' => FALSE,
+      '#description' => t('Define  labels used in the datalayer output, labels for field values are configurable from the field edit form.'),
+    ];
+
+    // Entity title
+    $entityTitle = $datalayer_settings->get('entity_title');
+    $form['output']['entity_title'] = [
+      '#type' => 'textfield',
+      '#title' => t('Entity title'),
+      '#default_value' => isset($entityTitle) ? $entityTitle : 'entityLabel',
+      '#description' => t('The label for the title of the entity'),
+    ];
+
+    // Entity type.
+    $entityType = $datalayer_settings->get('entity_type');
+    $form['output']['entity_type'] = [
+      '#type' => 'textfield',
+      '#title' => t('Entity type'),
+      '#default_value' => isset($entityType) ? $entityType : 'entityType',
+      '#description' => t('The label for the type of the entity'),
+    ];
+
+    // Entity bundle.
+    $entityBundle = $datalayer_settings->get('entity_bundle');
+    $form['output']['entity_bundle'] = [
+      '#type' => 'textfield',
+      '#title' => t('Entity bundle'),
+      '#default_value' => isset($entityBundle) ? $entityBundle : 'entityBundle',
+      '#description' => t('The label for the bundle of the entity'),
+    ];
+
+    // Entity indetifier.
+    $entityIdentifier = $datalayer_settings->get('entity_identifier');
+    $form['output']['entity_identifier'] = [
+      '#type' => 'textfield',
+      '#title' => t('Entity identifier'),
+      '#default_value' => isset($entityIdentifier) ? $entityIdentifier : 'entityIdentifier',
+      '#description' => t('The label for the identifier of the entity'),
+    ];
+
+    // drupalLanguage.
+    $drupalLanguage = $datalayer_settings->get('drupal_language');
+    $form['output']['drupal_language'] = [
+      '#type' => 'textfield',
+      '#title' => t('Drupal language'),
+      '#default_value' => isset($drupalLanguage) ? $drupalLanguage : 'drupalLanguage',
+      '#description' => t('The label for the language of the Drupal site'),
+    ];
+
+    // drupalCountry.
+    $drupalCountry = $datalayer_settings->get('drupal_country');
+    $form['output']['drupal_country'] = [
+      '#type' => 'textfield',
+      '#title' => t('Drupal country'),
+      '#default_value' => isset($drupalCountry) ? $drupalCountry : 'drupalCountry',
+      '#description' => t('The label for the country of the Drupal site'),
+    ];
+
+    // Site name.
+    $drupalSitename = $datalayer_settings->get('site_name');
+    $form['output']['site_name'] = [
+      '#type' => 'textfield',
+      '#title' => t('Drupal site name'),
+      '#default_value' => isset($drupalSitename) ? $drupalSitename : 'drupalSitename',
+      '#description' => t('The label for the sitename value'),
+    ];
+
+    // find an replace.
+    $labelReplacements = $datalayer_settings->get('label_replacements');
+    $form['output']['label_replacements'] = [
+      '#type' => 'textarea',
+      '#title' => t('Exposed field sub label replacements'),
+      '#default_value' => isset($labelReplacements) ? $this->labelReplacementsFromArray($labelReplacements) : '',
+      '#description' => t('For exposed fields with a sub array of field daya you can enter a replacement value for lables using the format: returned_value|replacement'),
     ];
 
     return parent::buildForm($form, $form_state);

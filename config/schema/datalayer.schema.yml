@@ -35,3 +35,4 @@ datalayer.settings:
     expose_user_details_fields:
       label: 'Include enabled user field values'
       type: boolean
+
