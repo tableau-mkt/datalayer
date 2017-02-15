@@ -333,10 +333,12 @@ function _datalayer_get_entity_data($entity) {
 
     // Output group name.
     if ($datalayer_settings->get('group')) {
-      if (\Drupal::moduleHandler()->moduleExists('group')) {
-        $groupName = getEntityGroup($entity);
-        if (!is_null($groupName)) {
-          $output_data[$datalayer_settings->get('group_label')] = $groupName->label();
+      if ($entity instanceof \Drupal\Core\Entity\EntityInterface) {
+        if (\Drupal::moduleHandler()->moduleExists('group')) {
+          $groupName = getEntityGroup($entity);
+          if (!is_null($groupName)) {
+            $output_data[$datalayer_settings->get('group_label')] = $groupName->label();
+          }
         }
       }
     }
