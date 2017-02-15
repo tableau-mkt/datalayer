@@ -6,9 +6,7 @@
 
 use Drupal\Core\Url;
 use Drupal\Core\Entity\ContentEntityInterface;
-use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Field\FormatterInterface;
 Use Drupal\taxonomy\Entity\Term;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Entity\EntityInterface;
@@ -333,8 +331,8 @@ function _datalayer_get_entity_data($entity) {
 
     // Output group name.
     if ($datalayer_settings->get('group')) {
-      if ($entity instanceof \Drupal\Core\Entity\EntityInterface) {
-        if (\Drupal::moduleHandler()->moduleExists('group')) {
+      if (\Drupal::moduleHandler()->moduleExists('group')) {
+        if ($entity instanceof \Drupal\Core\Entity\EntityInterface && ($entity->getEntityType() == 'node')) {
           $groupName = getEntityGroup($entity);
           if (!is_null($groupName)) {
             $output_data[$datalayer_settings->get('group_label')] = $groupName->label();
