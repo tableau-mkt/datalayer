@@ -32,6 +32,10 @@ class DatalayerSettingsForm extends ConfigFormBase {
       ->set('output_fields', $form_state->getValue('output_fields'))
       ->set('lib_helper', $form_state->getValue('lib_helper'))
       ->set('entity_meta', $form_state->getValue('global_entity_meta'))
+      ->set('enable_ia', $form_state->getValue('enable_ia'))
+      ->set('ia_depth', $form_state->getValue('ia_depth'))
+      ->set('ia_category_primary', $form_state->getValue('ia_category_primary'))
+      ->set('ia_category_sub', $form_state->getValue('ia_category_sub'))
       ->set('vocabs', $form_state->getValue('vocabs'))
       ->set('expose_user_details', $form_state->getValue('expose_user_details'))
       ->set('expose_user_details_roles', $form_state->getValue('expose_user_details_roles'))
@@ -164,6 +168,45 @@ class DatalayerSettingsForm extends ConfigFormBase {
       '#title' => '',
       '#default_value' => $datalayer_settings->get('entity_meta'),
       '#options' => array_combine($meta_data, $meta_data),
+    ];
+
+    $form['ia'] = [
+      '#type' => 'fieldset',
+      '#title' => t('Information architecture'),
+      '#collapsible' => TRUE,
+      '#collapsed' => FALSE,
+      '#description' => t('Settings for output of path components relating to url path'),
+    ];
+
+    $form['ia']['enable_ia'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Enable IA'),
+      '#default_value' => $datalayer_settings->get('enable_ia'),
+      '#description' => t('Output url path components as datalayer attributes.'),
+    ];
+
+    $iadepth = $datalayer_settings->get('ia_depth');
+    $form['ia']['ia_depth'] = [
+      '#type' => 'number',
+      '#title' => t('Depth of paths'),
+      '#default_value' => isset($iadepth) ? $iadepth : '3',
+      '#description' => t('Define how many url path components get output in datalayer'),
+    ];
+
+    $iacatPrimary = $datalayer_settings->get('ia_category_primary');
+    $form['ia']['ia_category_primary'] = [
+      '#type' => 'textfield',
+      '#title' => t('Depth of paths'),
+      '#default_value' => isset($iacatPrimary) ? $iacatPrimary : 'primaryCategory',
+      '#description' => t('Define the label for the primary path component.'),
+    ];
+
+    $iacatSub = $datalayer_settings->get('ia_category_sub');
+    $form['ia']['ia_category_sub'] = [
+      '#type' => 'textfield',
+      '#title' => t('Depth of paths'),
+      '#default_value' => isset($iacatSub) ? $iacatSub : 'subCategory',
+      '#description' => t('Define the label for sub-components (this value will get appended with numerical identifier).'),
     ];
 
     $form['vocabs'] = [

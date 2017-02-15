@@ -19,6 +19,18 @@ datalayer.settings:
       type: sequence
       sequence:
         type: string
+    enable_ia:
+      label: 'Display IA paths in output'
+      type: boolean
+    ia_depth:
+      label: 'Set depth of displayed paths'
+      type: number
+    ia_category_primary:
+      label: 'Set label for first component of path'
+      type: string
+    ia_category_sub:
+      label: 'Set label for sub components of path'
+      type: string
     vocabs:
       label: 'Taxonomy'
       type: sequence

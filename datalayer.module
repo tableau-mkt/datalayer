@@ -334,10 +334,38 @@ function _datalayer_get_entity_data($entity) {
     // Output group name.
     if ($datalayer_settings->get('group')) {
       if (\Drupal::moduleHandler()->moduleExists('group')) {
-        $groupName = getEntityGroup($entity)->label();
-        $output_data[$datalayer_settings->get('group_label')] = $groupName;
+        $groupName = getEntityGroup($entity);
+        if (!is_null($groupName)) {
+          $output_data[$datalayer_settings->get('group_label')] = $groupName->label();
+        }
       }
     }
+
+    // Output path based IA values.
+    if ($datalayer_settings->get('enable_ia')) {
+      $depth = $datalayer_settings->get('ia_depth');
+      // Retrieve an array which contains the path pieces.
+      $current_path = \Drupal::service('path.current')->getPath();
+      $result = \Drupal::service('path.alias_manager')
+        ->getAliasByPath($current_path);
+      $path_args = explode('/', $result);
+      $i = 0;
+      foreach ($path_args as $component) {
+        if ($i != $depth) {
+          if (!empty($component)) {
+            if ($i == 0) {
+              $category = $datalayer_settings->get('ia_category_primary');
+            }
+            else {
+              $category = $datalayer_settings->get('ia_category_sub') . $i;
+            }
+            $output_data[$category] = $component;
+            $i++;
+          }
+        }
+      }
+    }
+
 
     // Output field data.
     if ($datalayer_settings->get('output_fields')) {
