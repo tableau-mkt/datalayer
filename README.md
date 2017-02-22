@@ -1,7 +1,3 @@
-# drupal-datalayer-d8
-Porting the D7 datalayer module to D8
-
-
 Data Layer
 ==============
 **Get page meta data from inside Drupal out to the client-side.**
