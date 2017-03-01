@@ -63,10 +63,14 @@ class DatalayerSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   protected function keyReplacementsToArray($replacements) {
+    $storage = [];
     $labels = explode("\r\n", $replacements);
+    array_filter($labels);
     foreach ($labels as $label) {
-      $tmp = explode('|', $label);
-      $storage[$tmp[0]] = $tmp[1];
+      if (strpos($label, '|') !== FALSE) {
+        $tmp = explode('|', $label);
+        $storage[$tmp[0]] = $tmp[1];
+      }
     }
     return $storage;
   }
@@ -74,7 +78,7 @@ class DatalayerSettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  protected function labelReplacementsFromArray($replacements) {
+  protected function keyReplacementsFromArray($replacements) {
     $display = '';
     if (!is_null($replacements)) {
       foreach ($replacements as $label => $replacement) {
@@ -340,7 +344,7 @@ class DatalayerSettingsForm extends ConfigFormBase {
     $form['output']['key_replacements'] = [
       '#type' => 'textarea',
       '#title' => t('Exposed field sub-key replacements'),
-      '#default_value' => empty($key_replacements) ? $this->labelReplacementsFromArray($key_replacements) : '',
+      '#default_value' => !empty($key_replacements) ? $this->keyReplacementsFromArray($key_replacements) : '',
       '#description' => t('For exposed fields with a sub-array of field data, enter a replacement key using the format: returned_value|replacement'),
     ];
 
