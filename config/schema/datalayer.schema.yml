@@ -74,6 +74,6 @@ datalayer.settings:
     site_name:
       label: 'Label for the sitename value'
       type: string
-    label_replacements:
-      label: 'Exposed field sub label replacements'
+    key_replacements:
+      label: 'Exposed field sub-key replacements'
       type: sequence

@@ -372,7 +372,7 @@ function _datalayer_get_entity_data($entity) {
     // Output field data.
     if ($datalayer_settings->get('output_fields')) {
       $fields = _datalayer_get_field_values($entity);
-      $replacements = $datalayer_settings->get('label_replacements');
+      $replacements = $datalayer_settings->get('key_replacements');
       foreach ($fields as $key => $value) {
         if (array_key_exists($key, $replacements)) {
           $key = $replacements[$key];
