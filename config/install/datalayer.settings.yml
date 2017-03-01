@@ -15,9 +15,9 @@ expose_user_details_fields: false
 entity_title: 'entityTitle'
 entity_type: 'entityType'
 entity_bundle: 'entityBundle'
-entity_identifier: 'entityIdentifier'
-group_label: 'groupLabel'
+entity_identifier: 'entityId'
+group_key: 'groupLabel'
 drupal_language: 'drupalLanguage'
 drupal_country: 'drupalCountry'
-site_name: ''
-label_replacements: {  }
+site_name: 'siteName'
+key_replacements: {  }

@@ -47,12 +47,12 @@ class DatalayerSettingsForm extends ConfigFormBase {
       ->set('drupal_language', $form_state->getValue('drupal_language'))
       ->set('drupal_country', $form_state->getValue('drupal_country'))
       ->set('site_name', $form_state->getValue('site_name'))
-      ->set('label_replacements', $this->labelReplacementsToArray($form_state->getValue('label_replacements')))
+      ->set('key_replacements', $this->keyReplacementsToArray($form_state->getValue('key_replacements')))
       ->save();
 
     if (\Drupal::moduleHandler()->moduleExists('group')) {
       $config->set('group', $form_state->getValue('group'))
-        ->set('group_label', $form_state->getValue('group_label'))
+        ->set('group_key', $form_state->getValue('group_key'))
         ->save();
     }
 
@@ -62,11 +62,11 @@ class DatalayerSettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  protected function labelReplacementsToArray($replacements) {
+  protected function keyReplacementsToArray($replacements) {
     $labels = explode("\r\n", $replacements);
-    foreach( $labels as $label ){
-      $tmp = explode( '|', $label );
-      $storage[ $tmp[0] ] = $tmp[1];
+    foreach ($labels as $label) {
+      $tmp = explode('|', $label);
+      $storage[$tmp[0]] = $tmp[1];
     }
     return $storage;
   }
@@ -106,8 +106,6 @@ class DatalayerSettingsForm extends ConfigFormBase {
     $form['global'] = [
       '#type' => 'fieldset',
       '#title' => t('Global'),
-      '#collapsible' => FALSE,
-      '#collapsed' => FALSE,
     ];
     $form['global']['add_page_meta'] = [
       '#type' => 'checkbox',
@@ -150,10 +148,8 @@ class DatalayerSettingsForm extends ConfigFormBase {
     }
 
     $form['entity_meta'] = [
-      '#type' => 'fieldset',
+      '#type' => 'details',
       '#title' => t('Entity meta data'),
-      '#collapsible' => TRUE,
-      '#collapsed' => FALSE,
       '#description' => t('The meta data details to ouput for client-side consumption. Marking none will output everything available.'),
     ];
     $form['entity_meta']['global_entity_meta'] = [
@@ -171,11 +167,9 @@ class DatalayerSettingsForm extends ConfigFormBase {
     ];
 
     $form['ia'] = [
-      '#type' => 'fieldset',
-      '#title' => t('Information architecture'),
-      '#collapsible' => TRUE,
-      '#collapsed' => FALSE,
-      '#description' => t('Settings for output of path components relating to url path'),
+      '#type' => 'details',
+      '#title' => t('Path architecture'),
+      '#description' => t('Settings for output of url path components.'),
     ];
 
     $form['ia']['enable_ia'] = [
@@ -185,20 +179,20 @@ class DatalayerSettingsForm extends ConfigFormBase {
       '#description' => t('Output url path components as datalayer attributes.'),
     ];
 
-    $iadepth = $datalayer_settings->get('ia_depth');
+    $ia_depth = $datalayer_settings->get('ia_depth');
     $form['ia']['ia_depth'] = [
       '#type' => 'number',
       '#title' => t('Depth of paths'),
-      '#default_value' => isset($iadepth) ? $iadepth : '3',
-      '#description' => t('Define how many url path components get output in datalayer'),
+      '#default_value' => isset($ia_depth) ? $ia_depth : '3',
+      '#description' => t('Define how many url path components get output in dataLayer.'),
     ];
 
-    $iacatPrimary = $datalayer_settings->get('ia_category_primary');
+    $ia_cat_primary = $datalayer_settings->get('ia_category_primary');
     $form['ia']['ia_category_primary'] = [
       '#type' => 'textfield',
       '#title' => t('Depth of paths'),
-      '#default_value' => isset($iacatPrimary) ? $iacatPrimary : 'primaryCategory',
-      '#description' => t('Define the label for the primary path component.'),
+      '#default_value' => isset($ia_cat_primary) ? $ia_cat_primary : 'primaryCategory',
+      '#description' => t('Define the key for the primary path component.'),
     ];
 
     $iacatSub = $datalayer_settings->get('ia_category_sub');
@@ -206,14 +200,12 @@ class DatalayerSettingsForm extends ConfigFormBase {
       '#type' => 'textfield',
       '#title' => t('Depth of paths'),
       '#default_value' => isset($iacatSub) ? $iacatSub : 'subCategory',
-      '#description' => t('Define the label for sub-components (this value will get appended with numerical identifier).'),
+      '#description' => t('Define the key for sub-components (this value will get appended with numerical identifier).'),
     ];
 
     $form['vocabs'] = [
-      '#type' => 'fieldset',
+      '#type' => 'details',
       '#title' => t('Taxonomy'),
-      '#collapsible' => TRUE,
-      '#collapsed' => FALSE,
       '#description' => t('The vocabularies which should be output within page meta data. Marking none will output everything available.'),
     ];
     $form['vocabs']['vocabs'] = [
@@ -231,10 +223,8 @@ class DatalayerSettingsForm extends ConfigFormBase {
     ];
 
     $form['user'] = [
-      '#type' => 'fieldset',
+      '#type' => 'details',
       '#title' => t('User Details'),
-      '#collapsible' => TRUE,
-      '#collapsed' => FALSE,
       '#description' => t('Details about the current user can be output to the dataLayer.'),
     ];
 
@@ -266,94 +256,92 @@ class DatalayerSettingsForm extends ConfigFormBase {
     ];
 
     $form['output'] = [
-      '#type' => 'fieldset',
-      '#title' => t('Data layer output Labels'),
-      '#collapsible' => TRUE,
-      '#collapsed' => FALSE,
-      '#description' => t('Define labels used in the datalayer output, labels for field values are configurable from the field edit form.'),
+      '#type' => 'details',
+      '#title' => t('Data layer output keys'),
+      '#description' => t('Define keys used in the datalayer output. Keys for field values are configurable via the field edit form.'),
     ];
 
     // Entity title
-    $entityTitle = $datalayer_settings->get('entity_title');
+    $entity_title = $datalayer_settings->get('entity_title');
     $form['output']['entity_title'] = [
       '#type' => 'textfield',
       '#title' => t('Entity title'),
-      '#default_value' => isset($entityTitle) ? $entityTitle : 'entityLabel',
-      '#description' => t('Label for the title of the entity'),
+      '#default_value' => isset($entity_title) ? $entity_title : 'entityTitle',
+      '#description' => t('Key for the title of an entity, e.g. node title, taxonomy term name, or username.'),
     ];
 
     // Entity type.
-    $entityType = $datalayer_settings->get('entity_type');
+    $entity_type = $datalayer_settings->get('entity_type');
     $form['output']['entity_type'] = [
       '#type' => 'textfield',
       '#title' => t('Entity type'),
-      '#default_value' => isset($entityType) ? $entityType : 'entityType',
-      '#description' => t('Label for the type of the entity'),
+      '#default_value' => isset($entity_type) ? $entity_type : 'entityType',
+      '#description' => t('Key for the type of an entity, e.g. node, user, or taxonomy_term.'),
     ];
 
     // Entity bundle.
-    $entityBundle = $datalayer_settings->get('entity_bundle');
+    $entity_bundle = $datalayer_settings->get('entity_bundle');
     $form['output']['entity_bundle'] = [
       '#type' => 'textfield',
       '#title' => t('Entity bundle'),
-      '#default_value' => isset($entityBundle) ? $entityBundle : 'entityBundle',
-      '#description' => t('Label for the bundle of the entity'),
+      '#default_value' => isset($entity_bundle) ? $entity_bundle : 'entityBundle',
+      '#description' => t('Key for the bundle of an entity, e.g. page, my_things.'),
     ];
 
     // Entity indetifier.
-    $entityIdentifier = $datalayer_settings->get('entity_identifier');
+    $entity_id = $datalayer_settings->get('entity_identifier');
     $form['output']['entity_identifier'] = [
       '#type' => 'textfield',
       '#title' => t('Entity identifier'),
-      '#default_value' => isset($entityIdentifier) ? $entityIdentifier : 'entityIdentifier',
-      '#description' => t('Label for the identifier of the entity'),
+      '#default_value' => isset($entity_id) ? $entity_id : 'entityIdentifier',
+      '#description' => t('Key for the identifier of an entity, e.g. nid, uid, or tid.'),
     ];
 
     // drupalLanguage.
-    $drupalLanguage = $datalayer_settings->get('drupal_language');
+    $drupal_lang = $datalayer_settings->get('drupal_language');
     $form['output']['drupal_language'] = [
       '#type' => 'textfield',
       '#title' => t('Drupal language'),
-      '#default_value' => isset($drupalLanguage) ? $drupalLanguage : 'drupalLanguage',
-      '#description' => t('Label for the language of the Drupal site'),
+      '#default_value' => isset($drupal_lang) ? $drupal_lang : 'drupalLanguage',
+      '#description' => t('Key for the language of the site.'),
     ];
 
     // drupalCountry.
-    $drupalCountry = $datalayer_settings->get('drupal_country');
+    $drupal_country = $datalayer_settings->get('drupal_country');
     $form['output']['drupal_country'] = [
       '#type' => 'textfield',
       '#title' => t('Drupal country'),
-      '#default_value' => isset($drupalCountry) ? $drupalCountry : 'drupalCountry',
-      '#description' => t('Label for the country of the Drupal site'),
+      '#default_value' => isset($drupal_country) ? $drupal_country : 'drupalCountry',
+      '#description' => t('Key for the country of the site.'),
     ];
 
     if (\Drupal::moduleHandler()->moduleExists('group')) {
       // Group label.
-      $groupLabel = $datalayer_settings->get('group_label');
-      $form['output']['group_label'] = [
+      $group_key = $datalayer_settings->get('group_key');
+      $form['output']['group_key'] = [
         '#type' => 'textfield',
-        '#title' => t('Group label'),
-        '#default_value' => isset($groupLabel) ? $groupLabel : 'groupLabel',
-        '#description' => t('Label for the group label'),
+        '#title' => t('Group key'),
+        '#default_value' => isset($group_key) ? $group_key : 'groupKey',
+        '#description' => t('Key for the group.'),
       ];
     }
 
     // Site name.
-    $drupalSitename = $datalayer_settings->get('site_name');
+    $drupal_sitename = $datalayer_settings->get('site_name');
     $form['output']['site_name'] = [
       '#type' => 'textfield',
       '#title' => t('Drupal site name'),
-      '#default_value' => isset($drupalSitename) ? $drupalSitename : 'drupalSitename',
-      '#description' => t('Label for the sitename value'),
+      '#default_value' => isset($drupal_sitename) ? $drupal_sitename : 'drupalSitename',
+      '#description' => t('Key for the site name value.'),
     ];
 
     // find an replace.
-    $labelReplacements = $datalayer_settings->get('label_replacements');
-    $form['output']['label_replacements'] = [
+    $key_replacements = $datalayer_settings->get('key_replacements');
+    $form['output']['key_replacements'] = [
       '#type' => 'textarea',
-      '#title' => t('Exposed field sub label replacements'),
-      '#default_value' => isset($labelReplacements) ? $this->labelReplacementsFromArray($labelReplacements) : '',
-      '#description' => t('For exposed fields with a sub array of field daya you can enter a replacement value for labels using the format: returned_value|replacement'),
+      '#title' => t('Exposed field sub-key replacements'),
+      '#default_value' => empty($key_replacements) ? $this->labelReplacementsFromArray($key_replacements) : '',
+      '#description' => t('For exposed fields with a sub-array of field data, enter a replacement key using the format: returned_value|replacement'),
     ];
 
     return parent::buildForm($form, $form_state);
