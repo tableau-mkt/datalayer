@@ -11,7 +11,7 @@ This module was created to work with <a href="https://www.drupal.org/project/sem
 **Issues:** Post problems or feature requests to the [Drupal project issue queue](https://drupal.org/project/issues/datalayer).
 
 ## Meta data output
-It's critial to have easy and reliable JS access to the meta data about the pages of your site. This modules helps output that info. Yes, you could get some of this from the DOM, but that's messy. Configure what gets pushed out via the admin page. This includes global control over all entity properties. You can also control if taxonomy should be inluded, and which vocabularies should be exposed. Here's _some_ of what's available by default...
+It's critical to have easy and reliable JS access to the meta data about the pages of your site. This modules helps output that info. Yes, you could get some of this from the DOM, but that's messy. Configure what gets pushed out via the admin page. This includes global control over all entity properties. You can also control if taxonomy should be included, and which vocabularies should be exposed. Here's _some_ of what's available by default...
 ```json
 {
   "drupalLanguage": "en",
@@ -109,7 +109,7 @@ function my_module_datalayer_alter(&$data_layer) {
 ```
 
 ## Use the data layer client-side
-There are lots of great client-side uses for your pages' data. The `dataLayer` object is used as a warehouse for Google Analytics and GTM, and is therefor an array of objects. To safely access properties you should use the <a href="#data-layer-helper">data-layer-helper</a> library, a dependency of this module.
+There are lots of great client-side uses for your pages' data. The `dataLayer` object is used as a warehouse for Google Analytics and GTM, and is therefore an array of objects. To safely access properties you should use the <a href="#data-layer-helper">data-layer-helper</a> library, a dependency of this module.
 You might act on this info like this...
 ```javascript
 var myHelper = new DataLayerHelper(dataLayer),
@@ -127,12 +127,12 @@ If your project is multilingual this module provides several useful client-side 
 ```
 Drupal.settings.dataLayer.languages;
 ```
-Returns objects of your active langauges with full-details such as: prefix, native text, enabled, domain, name, etc.
+Returns objects of your active languages with full-details such as: prefix, native text, enabled, domain, name, etc.
 
 ```
 Drupal.behaviors.dataLayer.langPrefixes();
 ```
-Returns an array of your active language prefix codes, excluding any taht are left empty.
+Returns an array of your active language prefix codes, excluding any that are left empty.
 
 ## Dynamic additions
 You can add new data to the data layer dynamically. This is how GA does it, you should follow those patterns.
@@ -156,5 +156,5 @@ Chances are you're interested in this module to get data from Drupal into the da
 To do this just check the box on the admin screen. If you want to more about working with Google services, refer to the [Tag Manager - Dev Guide](https://developers.google.com/tag-manager/devguide).
 
 ### Data Layer Helper
-To employ more complex interactions with the data you may want load the [data-layer-helper](https://github.com/google/data-layer-helper) library. It provides the ability to "process messages passed onto a dataLayer queue," meaning listen to data provided to the data layer dynamicly.
+To employ more complex interactions with the data you may want load the [data-layer-helper](https://github.com/google/data-layer-helper) library. It provides the ability to "process messages passed onto a dataLayer queue," meaning listen to data provided to the data layer dynamically.
 To use, add the compiled source to the standard Drupal location of `sites/all/libraries/data-layer-helper/data-layer-helper.js` and check the box on the admin page to include it.
